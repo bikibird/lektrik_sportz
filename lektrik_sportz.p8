@@ -4,7 +4,7 @@ version 34
 -- by bikibird
 
 -- 3d functions borrowed from @mot https://www.lexaloffle.com/bbs/?tid=37982
--- modified by me to add camera orientations of 0, 90, 180, and 360 degrees
+-- modified by me to add camera orientations of up, down,
 __lua__
 
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
@@ -20,7 +20,7 @@ do
 		near=1,            -- near plane z
 		camyoff=0,        -- added to cam y pos
 		camheight=32,       -- camera height
-		orientation=0
+		orientation=up
 	}
    
 	-- save 2d versions
@@ -105,7 +105,7 @@ do
 	 
 	 -- rasterise
 		local py=flr(npy)
-		--if (p3d.orientation==1) py-=1
+		local orientation=p3d.orientation
 		while py>=fpy do
 	
 	  -- floor plane intercept
@@ -114,45 +114,32 @@ do
 
 	  -- map coords
 			local mx,my
-			--if (p3d.orientation==0) then
+			if (orientation==up or orientation==left) then
 				mx=cx
 				my=(-fy-d)/8+cy 
-			--end	
-			if (p3d.orientation==1) then
+			end	
+			if (orientation==down or orientation==right) then
+				mx=cx
 				my=15.999999999999999+(fy+d)/8-cy --weird rounding error with 16
 			end
+			
    
 	  -- project to get left/right
 			local lpx,lpy,lscale=proj(nx,-d,nz)
 			local rpx,rpy,rscale=proj(nx+w*8,-d,nz)
 	
 	  -- delta x
-			local dx=w/(rpx-lpx)  --orientation 0
-			if (p3d.orientation==1) dx = -dx
-			if (p3d.orientation==2) then
-				dy=dx
-				dx=0
-			end
-			if (p3d.orientation==3) then
-				dy=-dx
-				dx=0
-			end
+			local dx=w/(rpx-lpx) 
+			if (orientation==down or orientation==left) dx = -dx
 	  	-- sub-pixel correction
 			local l,r=flr(lpx+0.5)+1,flr(rpx+0.5)
-			if (p3d.orientation==0) mx+=(l-lpx)*dx
-			if (p3d.orientation==1) then
-				mx+=16-(l-lpx)*dx
-				--my=16-my
-			end	
-			if (p3d.orientation==3) mx+=(l-lpx)*dy
-			if (p3d.orientation==2) then
-				mx+=16-(l-lpx)*dy
-							--my=16-my
-			end	
+			if (orientation==up or orientation==right)  mx+=(l-lpx)*dx
+			if (orientation==down or orientation==left) mx+=16+(l-lpx)*dx
+			
 		-- render
-			tline(l,py,r,py,mx,my,dx,dy,lyr)
-			--if (p3d.orientation==0) tline(l,py,r,py,mx,my,dx,0,lyr)
-			--if (p3d.orientation==1) tline(l,py,r,py,16+mx,16-my,dx,0,lyr)
+			
+			if (orientation==up or orientation==down) tline(l,py,r,py,mx,my,dx,0,lyr)
+			if (orientation==left or orientation==right) tline(l,py,r,py,my,mx,0,dx,lyr)
 			py-=1
 		end 
 	end 
@@ -216,26 +203,27 @@ function _init()
 end
 function _update()
 	if (btnp(down) ) then
-		p3d.orientation=1
+		p3d.orientation=down
 		
 	end	
 	if (btnp(up) ) then
-		p3d.orientation=0
+		p3d.orientation=up
 		
 	end
 	if (btnp(left) ) then
-		p3d.orientation=2
+		p3d.orientation=left
 		
 	end	
 	if (btnp(right) ) then
-		p3d.orientation=3
+		p3d.orientation=right
 		
 	end
 
 end
 function _draw()
 	cls()
-	map(-3,-3)
+	map(0,0)
+	camera(60,60)
 	--spr3d(16,20,20,2,2,2)
 	--spr3d(16,20,40,2,2,2)
 
