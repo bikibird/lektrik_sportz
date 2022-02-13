@@ -4,7 +4,7 @@ version 34
 -- by bikibird
 -- a captain neato adventure
 -- 3d functions borrowed from @mot https://www.lexaloffle.com/bbs/?tid=37982
--- modified by me to add camera orientations of up, down,
+-- some functions heavily modified by me to add camera orientations for this specific game.
 __lua__
 
 --[[
@@ -14,110 +14,132 @@ captain neato floats helplessly in space. Out of nowhere Doctor Tristosy's ray g
 
 captain neato is forced to become a pawn in the Doctor's evil game and fight his most formidable opponent, himself.  
 
-If only he can reach home...  
+if only he can reach home...  
 
 ]]
 
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
 orientation =up
-steady_cam=function(w,h) --w, h are typically half the width/height of player sprite.
-	camera(0,0)
-	--camera(steady_cam_x-64+w,steady_cam_y-64+h) 
-end
 
+gs_update=
+{
+	intro=function()
+
+	end,
+	strategize =function()
+	end,
+	play=function()
+	end,
+	lose=function()
+	end,
+	win=function()
+	end
+
+}
+gs_draw=
+{
+	intro=function()
+
+	end,
+	strategize =function()
+	end,
+	play=function()
+	end,
+	lose=function()
+	end,
+	win=function()
+	end
+
+}
 steady_cam_select=function(angle)
 	orientation=angle
 --[[	if (angle==up) then
-		steady_cam_x=player_x
-		steady_cam_y=player_y
+		steady_cam_x=qb_x
+		steady_cam_y=qb_y
 	elseif (angle==down) then
-		steady_cam_x=112-player_x
-		steady_cam_y=player_y
+		steady_cam_x=112-qb_x
+		steady_cam_y=qb_y
 	elseif (angle==left) then
-		steady_cam_x=118+player_y
-		steady_cam_y=player_x+4
+		steady_cam_x=118+qb_y
+		steady_cam_y=qb_x+4
 	elseif (angle==right) then
-		steady_cam_x=player_y-2
-		steady_cam_y=player_x+12
+		steady_cam_x=qb_y-2
+		steady_cam_y=qb_x+12
 	end
 	]]
 end
 
-draw_player=function(n,x,y)
-	--sspr((n+orientation*2)%16*8,n\16*8,16,16,x,y,10,10)
+stand_qb=function(n,x,y,w,h,scale)
+	--sspr((n+orientation*2)%16*8,n\16*8,16,16,x,y,w*scale,h*scale)
 	if (orientation==up) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,x,y,10,10)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
 	elseif (orientation==down) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,120-x,112-y,10,10)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-2*h*scale,w*scale,h*scale)
 	elseif (orientation==left) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,112-y,x-4,10,10)
+		sspr((n+orientation*2)%16*8,n\16*8,16,16,128-h-y,x-w/2,w*scale,h*scale)
 	elseif (orientation==right) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,y+2,x-12,10,10)
+		sspr((n+orientation*2)%16*8,n\16*8,16,16,y-h/2,x-w,w*scale,h*scale)
 	end	
 end
-steady_cam_update=function(orientation)
+steady_cam=function()
 	
-		steady_cam_x-=(steady_cam_x-player_x)
-		steady_cam_y-=(steady_cam_y-player_y)
-	
+	steady_cam_x-=(steady_cam_x-qb_x)*.02
+	steady_cam_y-=(steady_cam_y-qb_y)*.02
+	if (orientation==up) then
+		camera(steady_cam_x-56,steady_cam_y-56)	
+	elseif (orientation==down) then
+		camera(161-steady_cam_x+56,steady_cam_y-56)
+	elseif (orientation==left) then 
+		camera(steady_cam_y-56, steady_cam_x-56)	
+	elseif (orientation==right) then 
+		camera(steady_cam_y-56, 161-steady_cam_x+56)
+	end
+		--camera(-64,-64) 
 end
+
 function _init()
 	pal({[0]=0,1,2,3,4,5,6,7,8,9,10,131,12,13,140,139},1)
-	player_x=50
-	player_y=80
-	offx=56
-	offy=56
-	steady_cam_x=player_x
-	steady_cam_y=player_y
+	
+	qb_x=64
+	qb_y=64
+	offx=0
+	offy=0
+	steady_cam_x=qb_x
+	steady_cam_y=qb_y
+--	_update=gs_update.intro
+--	_draw=gs_draw.intro
 end
 function _update()
-	if (btnp(fire1)) steady_cam_select(up)
-	if (btnp(fire2)) steady_cam_select(down)
+	--if (btnp(fire1)) steady_cam_select(up)
+	--if (btnp(fire2)) steady_cam_select(down)
 	if (btnp(down) ) then
-		offy-=3
-		--player_y-=3
-		--steady_cam_select(down)
+	--	offy-=3
+	--	qb_y-=1
+		steady_cam_select(down)
 	elseif (btnp(up) ) then
-		offy+=3
-		--player_y+=3
-		--steady_cam_select(up)
+	--	offy+=3
+	--	qb_y+=1
+		steady_cam_select(up)
 	elseif (btnp(left) ) then
-		offx-=3
-		--player_x-=3
-		--steady_cam_select(left)
+		--offx-=3
+		--qb_x-=1
+		steady_cam_select(left)
 	elseif (btnp(right) ) then
-		offx+=3
-		--player_x+=3
-		--steady_cam_select(right)
+		--offx+=3
+		--qb_x+=1
+		steady_cam_select(right)
 	end
-	--player_x+=rnd(1)-.5
-	--player_y+=rnd(1)-.5
---	steady_cam_update()
-	
+	qb_x+=rnd(1)-.5
+	qb_y+=rnd(1)-.5
+	steady_cam()
+
 end
 function _draw()
 	cls()
-	--map(0,0,0,0,16,35)
 	map(0,0)
-	camera(offx-56,offy-56)
-
-	---if (orientation==up) then 
-	---	camera(player_x-56,player_y-56) 
---	elseif (orientation==down) then
-	--	camera(120-player_x-56,112-player_y-56) 
----	end
-	--camera(steady_cam_x-56,steady_cam_y-56) 
-	--camera(0,0)
-	--spr3d(16,20,20,2,2,2)
-	--spr3d(16,20,40,2,2,2)
-	draw_player(32,player_x,player_y)
-	print(offx,0,0)
-	print(offy,0,10)
-	-- range between 2 and -2
-	
-	
+	stand_qb(32,qb_x,qb_y,16,16,1)
 end
--- instant 3d+!
+-- @mot's instant 3d+! heavily modified by bikibird for this specific game.
 
 do
 	-- parameters
@@ -207,12 +229,11 @@ do
    
 	 -- clamp
 		npy=min(npy,128)
-		fpy=max(fpy,-1)
+		fpy=max(fpy,0)
 
 	 
 	 -- rasterise
 		local py=flr(npy)
-		local orientation=orientation
 		while py>=fpy do
 	
 	  -- floor plane intercept
@@ -224,11 +245,9 @@ do
 			if (orientation==up or orientation==left) then
 				mx=cx
 				my=(-fy-d)/8+cy 
-			end	
-			if (orientation==down or orientation==right) then
-				mx=cx
-				--my=15.999999999999999+(fy+d)/8-cy --weird rounding error with 16
-				my=16+(fy+d)/8-cy
+			elseif (orientation==down or orientation==right) then
+				mx=36-cx
+				my=(128+fy+d)/8-cy
 			end
 			
    
@@ -241,13 +260,18 @@ do
 			if (orientation==down or orientation==left) dx = -dx
 	  	-- sub-pixel correction
 			local l,r=flr(lpx+0.5)+1,flr(rpx+0.5)
-			if (orientation==up or orientation==right)  mx+=(l-lpx)*dx
-			if (orientation==down or orientation==left) mx+=16+(l-lpx)*dx
 			
 		-- render
-			
+		color(12)
+		if (flr(py)==64) then
+			print (l,0,0) print(r,64,0) print(mx,0,10) print(dx,64,10)
+		end
 			if (orientation==up or orientation==down) tline(l,py,r,py,mx,my,dx,0,lyr)
 			if (orientation==left or orientation==right) tline(l,py,r,py,my,mx,0,dx,lyr)
+			--if (orientation==up or orientation==right)  mx+=(l-lpx)*dx
+			--if (orientation==down or orientation==left) mx+=36+(l-lpx)*dx
+			mx+=(l-lpx)*dx
+
 			py-=1
 		end 
 	end 
@@ -255,11 +279,10 @@ do
    
 	-- "instant 3d" wrapper functions
 	local function icamera(x,y)
-		local orientation=orientation
-	 cam.x=(x or 0)+64
-	 cam.y=(y or 0)+128+p3d.camyoff
-	 --if (orientation==down) cam.y=(y or 0)-128-p3d.camyoff
-	 cam.z=p3d.camheight
+		cam.x=(x or 0)+64
+		cam.y=(y or 0)+128+p3d.camyoff
+		cam.z=p3d.camheight
+		
 	end
    
 	local function isspr(sx,sy,sw,sh,x,y,w,h,fx,fy)
