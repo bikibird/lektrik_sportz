@@ -53,46 +53,36 @@ gs_draw=
 }
 steady_cam_select=function(angle)
 	orientation=angle
---[[	if (angle==up) then
-		steady_cam_x=qb_x
-		steady_cam_y=qb_y
-	elseif (angle==down) then
-		steady_cam_x=112-qb_x
-		steady_cam_y=qb_y
-	elseif (angle==left) then
-		steady_cam_x=118+qb_y
-		steady_cam_y=qb_x+4
-	elseif (angle==right) then
-		steady_cam_x=qb_y-2
-		steady_cam_y=qb_x+12
-	end
-	]]
+
 end
 
-stand_qb=function(n,x,y,w,h,scale)
+stand_player=function(n,x,y,w,h,scale)
 	--sspr((n+orientation*2)%16*8,n\16*8,16,16,x,y,w*scale,h*scale)
 	if (orientation==up) then
 		sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
 	elseif (orientation==down) then
 		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-2*h*scale,w*scale,h*scale)
 	elseif (orientation==left) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,128-h-y,x-w/2,w*scale,h*scale)
+		--sspr((n+orientation*2)%16*8,n\16*8,16,16,128-h-y,x-w/2,w*scale,h*scale)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,y,x,h*scale,w*scale)
 	elseif (orientation==right) then
-		sspr((n+orientation*2)%16*8,n\16*8,16,16,y-h/2,x-w,w*scale,h*scale)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,128-y-2*h*scale,288-x-w*scale,h*scale,w*scale)
 	end	
 end
-steady_cam=function()
+steady_cam=function(scale)
 	
 	steady_cam_x-=(steady_cam_x-qb_x)*.02
 	steady_cam_y-=(steady_cam_y-qb_y)*.02
+	local offset=64-16*scale/2
 	if (orientation==up) then
-		camera(steady_cam_x-56,steady_cam_y-56)	
+		camera(steady_cam_x-offset,steady_cam_y-offset)	
 	elseif (orientation==down) then
-		camera(161-steady_cam_x+56,steady_cam_y-56)
+		camera(steady_cam_x-offset,steady_cam_y-offset)
 	elseif (orientation==left) then 
-		camera(steady_cam_y-56, steady_cam_x-56)	
+		camera(steady_cam_y-offset, steady_cam_x-offset)	
 	elseif (orientation==right) then 
-		camera(steady_cam_y-56, 161-steady_cam_x+56)
+		camera(128-steady_cam_y+offset, 128-steady_cam_x+offset)
+	
 	end
 		--camera(-64,-64) 
 end
@@ -100,44 +90,45 @@ end
 function _init()
 	pal({[0]=0,1,2,3,4,5,6,7,8,9,10,131,12,13,140,139},1)
 	
-	qb_x=64
+	qb_x=20
 	qb_y=64
-	offx=0
-	offy=0
+	offx=56
+	offy=56
 	steady_cam_x=qb_x
 	steady_cam_y=qb_y
 --	_update=gs_update.intro
 --	_draw=gs_draw.intro
 end
 function _update()
-	--if (btnp(fire1)) steady_cam_select(up)
-	--if (btnp(fire2)) steady_cam_select(down)
+	if (btnp(fire1)) orientation=(orientation+1)%4
+		--if (btnp(fire2)) steady_cam_select(down)
 	if (btnp(down) ) then
-	--	offy-=3
+		offy-=3
 	--	qb_y-=1
-		steady_cam_select(down)
+	--	steady_cam_select(down)
 	elseif (btnp(up) ) then
-	--	offy+=3
+		offy+=3
 	--	qb_y+=1
-		steady_cam_select(up)
+	--	steady_cam_select(up)
 	elseif (btnp(left) ) then
-		--offx-=3
-		--qb_x-=1
-		steady_cam_select(left)
+		offx-=3
+	--	qb_x-=1
+	--	steady_cam_select(left)
 	elseif (btnp(right) ) then
-		--offx+=3
+		offx+=3
 		--qb_x+=1
-		steady_cam_select(right)
+		--steady_cam_select(right)
 	end
 	qb_x+=rnd(1)-.5
 	qb_y+=rnd(1)-.5
-	steady_cam()
-
+--	steady_cam(1)
+camera(offx,offy)
 end
 function _draw()
 	cls()
 	map(0,0)
-	stand_qb(32,qb_x,qb_y,16,16,1)
+	stand_player(32,qb_x,qb_y,16,16,1)
+	print (offx, 0,0)print (offy, 64,0)
 end
 -- @mot's instant 3d+! heavily modified by bikibird for this specific game.
 
@@ -242,14 +233,14 @@ do
 
 	  -- map coords
 			local mx,my
-			if (orientation==up or orientation==left) then
-				mx=cx
+			if (orientation==up or orientation==right) then
+				
 				my=(-fy-d)/8+cy 
-			elseif (orientation==down or orientation==right) then
-				mx=36-cx
+			elseif (orientation==left)then
+				my=(288+fy+d)/8-cy
+			else  --down
 				my=(128+fy+d)/8-cy
 			end
-			
    
 	  -- project to get left/right
 			local lpx,lpy,lscale=proj(nx,-d,nz)
@@ -257,20 +248,23 @@ do
 	
 	  -- delta x
 			local dx=w/(rpx-lpx) 
-			if (orientation==down or orientation==left) dx = -dx
+			if (orientation==down or orientation==right) dx = -dx
 	  	-- sub-pixel correction
 			local l,r=flr(lpx+0.5)+1,flr(rpx+0.5)
+			if (orientation==up or orientation==left)  then
+				mx= cx+(l-lpx)*dx
+			else 
+				mx=36-cx+(l-lpx)*dx
+			end	
 			
 		-- render
 		color(12)
 		if (flr(py)==64) then
-			print (l,0,0) print(r,64,0) print(mx,0,10) print(dx,64,10)
+			--print (l,0,0) print(r,64,0) print(mx,0,10) print(my,64,10) print(dx,0,20)
 		end
 			if (orientation==up or orientation==down) tline(l,py,r,py,mx,my,dx,0,lyr)
 			if (orientation==left or orientation==right) tline(l,py,r,py,my,mx,0,dx,lyr)
-			--if (orientation==up or orientation==right)  mx+=(l-lpx)*dx
-			--if (orientation==down or orientation==left) mx+=36+(l-lpx)*dx
-			mx+=(l-lpx)*dx
+		--	mx+=(l-lpx)*dx
 
 			py-=1
 		end 
