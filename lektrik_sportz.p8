@@ -19,7 +19,7 @@ if only he can reach home...
 ]]
 
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
-orientation =up
+orientation =right
 
 gs_update=
 {
@@ -57,31 +57,31 @@ steady_cam_select=function(angle)
 end
 
 stand_player=function(n,x,y,w,h,scale)
-	--sspr((n+orientation*2)%16*8,n\16*8,16,16,x,y,w*scale,h*scale)
 	if (orientation==up) then
 		sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
 	elseif (orientation==down) then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-2*h*scale,w*scale,h*scale)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x,128-y,w*scale,h*scale)
 	elseif (orientation==left) then
-		--sspr((n+orientation*2)%16*8,n\16*8,16,16,128-h-y,x-w/2,w*scale,h*scale)
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,y,x,h*scale,w*scale)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,y,288-x,h*scale,w*scale)
 	elseif (orientation==right) then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,128-y-2*h*scale,288-x-w*scale,h*scale,w*scale)
+		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-y,x,h*scale,w*scale)
 	end	
 end
 steady_cam=function(scale)
 	
-	steady_cam_x-=(steady_cam_x-qb_x)*.02
-	steady_cam_y-=(steady_cam_y-qb_y)*.02
+	--steady_cam_x-=(steady_cam_x-qb_x)*.02
+	--steady_cam_y-=(steady_cam_y-qb_y)*.02
+	steady_cam_x=offx
+	steady_cam_y=offy
 	local offset=64-16*scale/2
 	if (orientation==up) then
 		camera(steady_cam_x-offset,steady_cam_y-offset)	
 	elseif (orientation==down) then
-		camera(steady_cam_x-offset,steady_cam_y-offset)
+		camera(144-steady_cam_x+offset,steady_cam_y-offset)
 	elseif (orientation==left) then 
-		camera(steady_cam_y-offset, steady_cam_x-offset)	
+		camera(steady_cam_y-offset, 144-steady_cam_x+offset)	
 	elseif (orientation==right) then 
-		camera(128-steady_cam_y+offset, 128-steady_cam_x+offset)
+		camera(128-steady_cam_y+offset, steady_cam_x-offset)
 	
 	end
 		--camera(-64,-64) 
@@ -90,7 +90,7 @@ end
 function _init()
 	pal({[0]=0,1,2,3,4,5,6,7,8,9,10,131,12,13,140,139},1)
 	
-	qb_x=20
+	qb_x=8
 	qb_y=64
 	offx=56
 	offy=56
@@ -119,10 +119,10 @@ function _update()
 		--qb_x+=1
 		--steady_cam_select(right)
 	end
-	qb_x+=rnd(1)-.5
-	qb_y+=rnd(1)-.5
---	steady_cam(1)
-camera(offx,offy)
+	--qb_x+=rnd(1)-.5
+	--qb_y+=rnd(1)-.5
+	steady_cam(1)
+--camera(offx,offy)
 end
 function _draw()
 	cls()
