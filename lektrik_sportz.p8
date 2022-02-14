@@ -21,39 +21,8 @@ if only he can reach home...
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
 orientation =up
 
---modified version of @impbox's merge sort https://www.lexaloffle.com/bbs/?tid=2477
-function sort()
-    for i=1,#team do
-        local j = i
-		if orientation ==up then
-			while j > 1 and team[j-1].y > team[j].y do
-				team[j],team[j-1] = team[j-1],team[j]
-				j = j - 1
-			end
-		elseif orientation ==down then	
-			while j > 1 and team[j-1].y < team[j].y do
-				team[j],team[j-1] = team[j-1],team[j]
-				j = j - 1
-			end
-		elseif orientation ==left then	
-			while j > 1 and team[j-1].x < team[j].x do
-				team[j],team[j-1] = team[j-1],team[j]
-				j = j - 1
-			end	
-		elseif orientation ==right then	
-			while j > 1 and team[j-1].x > team[j].x do
-				team[j],team[j-1] = team[j-1],team[j]
-				j = j - 1
-			end		
-		end
-    end
-	for i=1,#team do
-		if (team[i].s==32) then 
-			qb=i
-			break
-		end	
-	end
-end
+
+
 gs_update=
 {
 	intro=function()
@@ -137,8 +106,14 @@ function _init()
 	qb=1
 	offx=56
 	offy=56
+	-- enable 3d mode
+	go3d()
+	menuitem(3,"3d",go3d)
+	menuitem(2,"2d",go2d)
+
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
+
 --	_update=gs_update.intro
 --	_draw=gs_draw.intro
 end
@@ -365,14 +340,39 @@ do
 	icamera()
    end
    
-   -- enable 3d mode
-   go3d()
-   menuitem(3,"3d",go3d)
-   menuitem(2,"2d",go2d)
-   go3d()
-   menuitem(3,"3d",go3d)
-   menuitem(2,"2d",go2d)
-
+   --modified version of @impbox's merge sort https://www.lexaloffle.com/bbs/?tid=2477
+   function sort()
+    for i=1,#team do
+        local j = i
+		if orientation ==up then
+			while j > 1 and team[j-1].y > team[j].y do
+				team[j],team[j-1] = team[j-1],team[j]
+				j = j - 1
+			end
+		elseif orientation ==down then	
+			while j > 1 and team[j-1].y < team[j].y do
+				team[j],team[j-1] = team[j-1],team[j]
+				j = j - 1
+			end
+		elseif orientation ==left then	
+			while j > 1 and team[j-1].x < team[j].x do
+				team[j],team[j-1] = team[j-1],team[j]
+				j = j - 1
+			end	
+		elseif orientation ==right then	
+			while j > 1 and team[j-1].x > team[j].x do
+				team[j],team[j-1] = team[j-1],team[j]
+				j = j - 1
+			end		
+		end
+    end
+	for i=1,#team do
+		if (team[i].s==32) then 
+			qb=i
+			break
+		end	
+	end
+end
 __gfx__
 0000000033333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333bbbbbbbb77777777
 0000000033777733333773333777773337777733333777733777777333333333333333333333333333333333333333333333333333333333bbbbbbbb77777777
