@@ -21,6 +21,8 @@ if only he can reach home...
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
 orientation =up
 move,base,slant,scrimmage=0,1,2,3
+wedge,round,block=0,1,2
+
 palettes=
 {
 	{[0]=0,1,2,3,11,5,6,7,8,9,10,131,12,13,140,139}
@@ -47,8 +49,8 @@ gs_update=
 			steady_cam_select(right)
 		end
 		for player in all(team) do
-			player.x+=rnd(4)-2
-			player.y+=rnd(4)-2	
+			player.x+=rnd(4)-2+player.dx/4
+			player.y+=rnd(4)-2+player.dy/4	
 		end
 		sort()
 		steady_cam(.8)
@@ -69,9 +71,15 @@ gs_draw=
 	play=function()
 		cls()
 		map(0,0)
-		for player in all(team) do
-			stand_player(player.s,player.x,player.y,16,16,.8)
-		end	
+		for i=1,#team do
+			if i==player then
+				stand_player(team[i],.8,true)
+			else
+				stand_player(team[i],.8,false)
+
+			end	
+		end
+		
 	end,
 	lose=function()
 	end,
@@ -88,16 +96,21 @@ function steady_cam_select(angle)
 	orientation=angle
 end
 
-function stand_player(n,x,y,w,h,scale)
-	if orientation==up then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
-	elseif orientation==down then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-1.5*h,w*scale,h*scale)
-	elseif orientation==left then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,y+.25*w,288-x-1.25*h,h*scale,w*scale)
-	elseif orientation==right then
-		sspr((n+orientation*2)%16*8,n\16*8,w,h,288-y-1.25*w,x-.625*h,h*scale,w*scale)
-	end	
+function stand_player(player,scale,qb)
+	--stand_player(n,x,y,w,h,scale,qb)
+	local n,x,y,w,h =player.s,player.x,player.y,16,16
+	if (qb and player.frame ==1) pal(15,4)
+	
+		if orientation==up then
+			sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
+		elseif orientation==down then
+			sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-1.5*h,w*scale,h*scale)
+		elseif orientation==left then
+			sspr((n+orientation*2)%16*8,n\16*8,w,h,y+.25*w,288-x-1.25*h,h*scale,w*scale)
+		elseif orientation==right then
+			sspr((n+orientation*2)%16*8,n\16*8,w,h,288-y-1.25*w,x-.625*h,h*scale,w*scale)
+		end	
+	pal(15,15) 
 end
 function steady_cam(scale)
 	local dx,dy=(steady_cam_x-team[qb].x)*.1,(steady_cam_y-team[qb].y)*.1
@@ -125,18 +138,18 @@ end
 function form_scrimmage()
 	team=
 	{
-		{x=scrimmage_line-32,y=56,s=32,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=24,s=64,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=40,s=64,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=56,s=64,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=72,s=64,tick=0,frame=0,step=10},
-		{x=scrimmage_line-16,y=88,s=64,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=16,s=96,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=32,s=96,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=48,s=96,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=64,s=96,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=80,s=96,tick=0,frame=0,step=10},
-		{x=scrimmage_line+16,y=96,s=96,tick=0,frame=0,step=10},
+		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-16,y=24,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-16,y=40,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-16,y=56,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-16,y=72,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-16,y=88,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=16,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=32,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=48,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=64,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=80,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+16,y=96,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 	}
 	qb=1
 end
@@ -165,7 +178,7 @@ _update=function()
 			if mode==scrimmage then
 				_update=gs_update.play
 				_draw=gs_draw.play
-				steady_cam_select(right)
+				steady_cam_select(left)
 				sfx(0)
 			else
 				player=player%6+1
@@ -182,18 +195,52 @@ _update=function()
 		elseif btnp(down) then
 			if mode==move then
 				if (team[player].y<111) team[player].y+=1
+			elseif mode==base then
+				team[player].base=(team[player].base+1)%3	
 			end	
 		elseif btnp(up) then
 			if mode==move then
 				if (team[player].y>-11) team[player].y-=1
+			elseif mode==base then
+				team[player].base=(team[player].base-1)%3	
 			end	
 		elseif btnp(left) then
 			if mode==move then
 				if (team[player].x>0) team[player].x-=1
+			elseif mode==slant then
+				if team[player].dx==0 and team[player].dy==0 then
+					team[player].angle=0 
+					dx=1 --any non-zero value
+				else	
+					team[player].angle+=5	
+				end		
+				
+				if (team[player].angle > 100) then
+					team[player].dx,team[player].dy=0,0
+					team[player].angle = 100
+				else	
+					team[player].dx=cos(team[player].angle/100)
+					team[player].dy=sin(team[player].angle/100)
+				end	
 			end	
 		elseif btnp(right) then
 			if mode==move then
 				if (team[player].x<scrimmage_line-8) team[player].x+=1
+			elseif mode==slant then
+				if team[player].dx==0 and team[player].dy==0 then
+					team[player].angle=100 
+					dx=1 --any non-zero value
+				else	
+					team[player].angle-=5	
+				end		
+				
+				if (team[player].angle < 0) then
+					team[player].dx,team[player].dy=0,0
+					team[player].angle = 100
+				else	
+					team[player].dx=cos(team[player].angle/100)
+					team[player].dy=sin(team[player].angle/100)
+				end	
 			end	
 		end
 		if mode==move then
@@ -208,23 +255,33 @@ _draw=function()
 	map(0,0)
 	camera(scrimmage_line-64)
 	for i=1,#team do
-		if mode==move and i==player then
+		if i==player then
 			animate_player(team[i]) 
-		else	
+		else
 			spr(team[i].s+4,team[i].x,team[i].y,2,2)
 		end	
 	end
-	
-	if mode==move then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode/move ⬅️➡️⬆️⬇️ ",72,1, black)
-	elseif mode==base then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode/base ⬆️⬇️      ",72,1, black)
+	if mode==base then
+		spr(team[player].base+18,team[player].x+12,team[player].y+10)
 	elseif mode==slant then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode/slant ⬅️➡️     ",72,1, black)
+		local x0,y0=team[player].x+14,team[player].y+14
+		local x1,y1=x0+team[player].dx*5,y0+team[player].dy*5
+		line(x0,y0,x1,y1,8)
+		palt(0,false)
+		pset(x0-1,y0,0) pset(x0+1,y0)
+		pset(x0,y0-1) pset(x0,y0+1) 
+		palt()
+	end		
+	if mode==move then
+		print("\#6\f0 ❎neato "..player.." 🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
+	elseif mode==base then
+		print("\#6\f0 ❎neato "..player.." 🅾️mode      ⬆️⬇️base ",72,1, black)
+	elseif mode==slant then
+		print("\#6\f0 ❎neato "..player.." 🅾️mode     ⬅️➡️slant ",72,1, black)
 	else --mode==play
 		print("\#6\f0 ❎scrimmage         🅾️strategy " ,0,1, black)
 	end
-	tline()
+
 end
 
 
@@ -404,6 +461,7 @@ do
 	function go2d()
 	 map,spr,sspr,pset,camera=map2d,spr2d,sspr2d,pset2d,camera2d
 	 is3d=false
+	 steady_cam_select(up)
 	end
    
 	-- defaults
@@ -442,18 +500,7 @@ function sort()
 		end	
 	end
 end	
---@theroboz's https://www.lexaloffle.com/bbs/?pid=78451 
--- modified to remove flip and scale
-function pd_rotate(x,y,rot,mx,my,w,flip,scale)
-	scale=scale or 1
-	local halfw, cx=scale*-w/2, mx + .5
-	local cy,cs,ss=my-halfw/scale,cos(rot)/scale,sin(rot)/scale
-	local sx, sy, hx, hy=cx+cs*halfw, cy+ss*halfw, w*(flip and -4 or 4)*scale, w*4*scale
-	for py=y-hy, y+hy do
-	tline(x-hx, py, x+hx, py, sx -ss*halfw, sy + cs*halfw, cs/8, ss/8)
-	halfw+=.125
-	end
-  end
+
 
 __gfx__
 0000000033333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333bbbbbbbb77777777
