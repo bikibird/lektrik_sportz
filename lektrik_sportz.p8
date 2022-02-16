@@ -10,17 +10,21 @@ __lua__
 --[[
 The story so far:
 
-captain neato floats helplessly in space. Out of nowhere Doctor Lamento's ray gun fires: shrink! freeze! mimeo! drop!
+captain neato floats helplessly in space. Out of nowhere Doctor Lamento's ray gun fires: freeze! shrink!  mimeo! drop!
 
 captain neato is forced to become a pawn in the Doctor's evil game and fight his most formidable opponent, himself.  
 
 if only he can reach home...  
 
+under the doctor's control, our hero can only set his intention and await his fate as the game plays out.
+
+Electricity!
+
 ]]
 
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
 orientation =up
-move,base,slant,scrimmage=0,1,2,3
+move,base,veer,scrimmage=0,1,2,3,4
 wedge,round,block=0,1,2
 
 palettes=
@@ -34,6 +38,83 @@ gs_update=
 
 	end,
 	strategize =function()
+		if btnp(fire1) then
+			if mode==scrimmage then
+				_update=gs_update.play
+				_draw=gs_draw.play
+				steady_cam_select(left)
+				sfx(0)
+			else
+				player=player%6+1
+				if player==1 then 
+					go3d()
+					sfx(1)
+					mode=scrimmage
+				end
+			end	
+		elseif btnp(fire2) then
+			if mode==scrimmage then
+				go2d()
+				sfx(1)
+				scrimaage=false
+				mode=move
+			else
+				mode=(mode+1)%3
+			end
+		elseif btnp(down) then
+			if mode==move then
+				if (team[player].y<111) team[player].y+=1
+			elseif mode==base then
+				team[player].base=(team[player].base+1)%3	
+			end	
+		elseif btnp(up) then
+			if mode==move then
+				if (team[player].y>-11) team[player].y-=1
+			elseif mode==base then
+				team[player].base=(team[player].base-1)%3	
+			end	
+		elseif btnp(left) then
+			if mode==move then
+				if (team[player].x>0) team[player].x-=1
+			elseif mode==veer then
+				if team[player].dx==0 and team[player].dy==0 then
+					team[player].angle=0 
+					dx=1 --any non-zero value
+				else	
+					team[player].angle+=5	
+				end		
+				
+				if (team[player].angle > 100) then
+					team[player].dx,team[player].dy=0,0
+					team[player].angle = 100
+				else	
+					team[player].dx=cos(team[player].angle/100)
+					team[player].dy=sin(team[player].angle/100)
+				end	
+			end	
+		elseif btnp(right) then
+			if mode==move then
+				if (team[player].x<scrimmage_line-8) team[player].x+=1
+			elseif mode==veer then
+				if team[player].dx==0 and team[player].dy==0 then
+					team[player].angle=100 
+					dx=1 --any non-zero value
+				else	
+					team[player].angle-=5	
+				end		
+				if (team[player].angle < 0) then
+					team[player].dx,team[player].dy=0,0
+					team[player].angle = 100
+				else	
+					team[player].dx=cos(team[player].angle/100)
+					team[player].dy=sin(team[player].angle/100)
+				end	
+			end	
+		end
+		if mode==move then
+			team[player].tick=(team[player].tick+1)%team[player].step
+			if (team[player].tick==1) team[player].frame=(team[player].frame+1)%2
+		end
 	end,
 	play=function()
 		if (btnp(fire1)) steady_cam_height(1)
@@ -67,7 +148,58 @@ gs_draw=
 
 	end,
 	strategize =function()
-	end,
+		--❎🅾️⬅️➡️⬆️⬇️
+		cls()
+		map(0,0)
+		camera(scrimmage_line-64)
+		for i=1,#team do
+			if i==player then
+				animate_player(team[i]) 
+				
+			else
+				spr(team[i].s+4,team[i].x,team[i].y,2,2)
+			end	
+		end
+		local x,y,player_base,dx,dy=team[player].x,team[player].y,team[player].base,team[player].dx,team[player].dy
+		if player==1 and mode!=scrimmage then
+			rectfill(x-30,y+10,x+2,y+15,6)
+			print("\f0OUR HERO", x-29,y+10)
+		end	
+		if mode==base then
+			spr(player_base+18,x,y-3)
+			if player_base == block then
+				print("\#6\f0 block ", 172,7)
+			elseif player_base==wedge then
+				print("\#6\f0 push aside ", 152,7)
+			else
+				print("\#6\f0 sidestep ", 160,7)
+			end	
+		elseif mode==veer then
+			local x0,y0=x,y
+			local x1,y1=x0+dx*5,y0+dy*5
+			rectfill(x0-6,y0-6,x0+6,y0+6,0)
+			circfill(x0,y0,7,6)
+			circ(x0,y0,7,0)
+			line(x0,y0,x1,y1,3)
+			palt(0,false)
+			pset(x0,y0,0) 
+			palt()
+			if dx==0 and dy==0 then
+				print("\#6\f0stay", x+2,y-2) 
+			end	
+		end		
+		if mode==move then
+			print("\#6\f0 ❎neato "..player.." 🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
+		elseif mode==base then
+			print("\#6\f0 ❎neato "..player.." 🅾️mode      ⬆️⬇️base ",72,1, black)
+		elseif mode==veer then
+			print("\#6\f0 ❎neato "..player.." 🅾️mode     ⬅️➡️veer  ",72,1, black)
+		else --mode=scrimmage
+			print("\#6\f0 ❎scrimmage         🅾️strategy " ,0,1, black)
+		end
+	
+	end
+	,
 	play=function()
 		cls()
 		map(0,0)
@@ -97,10 +229,8 @@ function steady_cam_select(angle)
 end
 
 function stand_player(player,scale,qb)
-	--stand_player(n,x,y,w,h,scale,qb)
 	local n,x,y,w,h =player.s,player.x,player.y,16,16
 	if (qb and player.frame ==1) pal(15,4)
-	
 		if orientation==up then
 			sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
 		elseif orientation==down then
@@ -161,7 +291,7 @@ function _init()
 	offy=56
 	mode=0
 	player=1
-	-- enable 3d mode
+	-- enable 3d mode  DEFECT remove prior to publication
 	menuitem(3,"3d",go3d)
 	menuitem(2,"2d",go2d)
 
@@ -169,121 +299,9 @@ function _init()
 	steady_cam_y=team[qb].y
 	
 	--go3d()
-	--_update=gs_update.play
-	--_draw=gs_draw.play
+	_update=gs_update.strategize
+	_draw=gs_draw.strategize
 end
-_update=function()
-
-		if btnp(fire1) then
-			if mode==scrimmage then
-				_update=gs_update.play
-				_draw=gs_draw.play
-				steady_cam_select(left)
-				sfx(0)
-			else
-				player=player%6+1
-			end	
-		elseif btnp(fire2) then
-			mode=(mode+1)%4
-			if mode==scrimmage then 
-				go3d()
-				sfx(1)
-			elseif mode==move then 
-				go2d()
-				sfx(1)
-			end	
-		elseif btnp(down) then
-			if mode==move then
-				if (team[player].y<111) team[player].y+=1
-			elseif mode==base then
-				team[player].base=(team[player].base+1)%3	
-			end	
-		elseif btnp(up) then
-			if mode==move then
-				if (team[player].y>-11) team[player].y-=1
-			elseif mode==base then
-				team[player].base=(team[player].base-1)%3	
-			end	
-		elseif btnp(left) then
-			if mode==move then
-				if (team[player].x>0) team[player].x-=1
-			elseif mode==slant then
-				if team[player].dx==0 and team[player].dy==0 then
-					team[player].angle=0 
-					dx=1 --any non-zero value
-				else	
-					team[player].angle+=5	
-				end		
-				
-				if (team[player].angle > 100) then
-					team[player].dx,team[player].dy=0,0
-					team[player].angle = 100
-				else	
-					team[player].dx=cos(team[player].angle/100)
-					team[player].dy=sin(team[player].angle/100)
-				end	
-			end	
-		elseif btnp(right) then
-			if mode==move then
-				if (team[player].x<scrimmage_line-8) team[player].x+=1
-			elseif mode==slant then
-				if team[player].dx==0 and team[player].dy==0 then
-					team[player].angle=100 
-					dx=1 --any non-zero value
-				else	
-					team[player].angle-=5	
-				end		
-				
-				if (team[player].angle < 0) then
-					team[player].dx,team[player].dy=0,0
-					team[player].angle = 100
-				else	
-					team[player].dx=cos(team[player].angle/100)
-					team[player].dy=sin(team[player].angle/100)
-				end	
-			end	
-		end
-		if mode==move then
-			team[player].tick=(team[player].tick+1)%team[player].step
-			if (team[player].tick==1) team[player].frame=(team[player].frame+1)%2
-		end
-
-end
-_draw=function()
-	--❎🅾️⬅️➡️⬆️⬇️
-	cls()
-	map(0,0)
-	camera(scrimmage_line-64)
-	for i=1,#team do
-		if i==player then
-			animate_player(team[i]) 
-		else
-			spr(team[i].s+4,team[i].x,team[i].y,2,2)
-		end	
-	end
-	if mode==base then
-		spr(team[player].base+18,team[player].x+12,team[player].y+10)
-	elseif mode==slant then
-		local x0,y0=team[player].x+14,team[player].y+14
-		local x1,y1=x0+team[player].dx*5,y0+team[player].dy*5
-		line(x0,y0,x1,y1,8)
-		palt(0,false)
-		pset(x0-1,y0,0) pset(x0+1,y0)
-		pset(x0,y0-1) pset(x0,y0+1) 
-		palt()
-	end		
-	if mode==move then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
-	elseif mode==base then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode      ⬆️⬇️base ",72,1, black)
-	elseif mode==slant then
-		print("\#6\f0 ❎neato "..player.." 🅾️mode     ⬅️➡️slant ",72,1, black)
-	else --mode==play
-		print("\#6\f0 ❎scrimmage         🅾️strategy " ,0,1, black)
-	end
-
-end
-
 
 
 -- @mot's instant 3d+! heavily modified by bikibird for this specific game.
@@ -511,14 +529,14 @@ __gfx__
 0070070033777733337777333777777337777733333337733777773337733773333777333773333337733333377377333333377333333333bbbbbbbb7bbbbbb7
 0000000033333333333333333333333333333333333333333333333333777733333773333377777333777773377773333777777333333333bbbbbbbb7bbbbbb7
 0000000033333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333bbbbbbbb7bbbbbb7
-7ffffff409000000333883333388883399999998000400000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
-f5f5f5f4009009f0338988333888888398888882004040000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
-f555f5f40b77bb90389888838888888898888882004040000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-f5f5f5f40b7b3300898888888889988898888882004040000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-fffffff400bb3000888888888889988898888882004040000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-44444444000b0000388888838888888898888882040404000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-ccc44ccc000b0000338888333888888398888882400400400000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-cccffccc00bb3000333883333388883382222222044444000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+7ffffff409000000000880000088880099999998000000000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
+f5f5f5f4009009f0008988000888888098888882000000000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
+f555f5f40b77bb90089888808888888898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+f5f5f5f40b7b3300898888888889988898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+fffffff400bb3000888888888889988898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+44444444000b0000088888808888888898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+ccc44ccc000b0000008888000888888098888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+cccffccc00bb3000000880000088880082222222000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
 0000000000000000000000000000000000000000000000000000000000000000777777777777777777bbbbbbbbbbbb7733333333bbbbbbbb7777777773333337
 0000099999900000000009999990000000000999999000000000099999900000777777777777777777bbbbbbbbbbbb7733333333bbbbbbbb7777777773333337
 00009aaffaa9000000009aaffaa9000000009aaaaaa9000000009aaaaaa90000773333337333333777bbbbbbbbbbbb7733333333bbbbbbbbbbbbbbbb73333337
