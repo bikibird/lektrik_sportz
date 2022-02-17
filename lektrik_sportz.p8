@@ -8,17 +8,34 @@ version 34
 __lua__
 
 --[[
-The story so far:
+--the story so far--
 
-captain neat-o floats helplessly in space. Out of nowhere Doctor Lamento's ray gun fires: freeze! shrink!  mimeo! drop!
+captain neat-o floats in space,
+so helpless and out of place.
 
-captain neat-o is forced to become a pawn in the Doctor's evil game and fight his most formidable opponent, himself.  
+the situation is dire...
+suddenly there's ray gun fire!
 
-if only he can reach home...  
+freeze, shrink, mimeo, and drop!
+Doctor lamento wont stop...
 
-under the doctor's control, our hero can only set his intention and await his fate as the game plays out.
+pawn neat-o must fight his clones.
+"too formidable!" he groans.
 
-Electricity!
+"then I'll give you some teammates.
+stategize while fate awaits."
+
+oh, true neat-o, head crowned gold, 
+travel thee now home. Behold...
+
+now see his green stripe flashing--
+cuts a figure so dashing.
+
+"i act with hostility."
+"engage the utility."
+
+lektrik electrickery!
+oh what wicked wickery!
 
 ]]
 
@@ -48,16 +65,18 @@ gs_update=
 
 	end,
 	strategize =function()
+		
 		if btnp(fire1) then
 			if mode==scrimmage then
 				_update=gs_update.play
 				_draw=gs_draw.play
-				steady_cam_select(left)
 				sfx(0)
 			else
 				player=player%6+1
 				if player==1 then 
+					steady_cam_select(up)
 					go3d()
+					steady_cam(.8)
 					sfx(1)
 					mode=scrimmage
 				end
@@ -66,7 +85,7 @@ gs_update=
 			if mode==scrimmage then
 				go2d()
 				sfx(1)
-				scrimaage=false
+				scrimage=false
 				mode=move
 			else
 				mode=(mode+1)%3
@@ -139,10 +158,7 @@ gs_update=
 		elseif btnp(right) then
 			steady_cam_select(right)
 		end
-		for player in all(team) do
-			player.x+=rnd(4)-2+player.dx/4
-			player.y+=rnd(4)-2+player.dy/4	
-		end
+		shake()
 		sort_depth()
 		steady_cam(.8)
 	end,
@@ -161,7 +177,7 @@ gs_draw=
 		--❎🅾️⬅️➡️⬆️⬇️
 		cls()
 		map(0,0)
-		camera(scrimmage_line-64)
+
 		for i=1,#team do
 			if i==player then
 				animate_player(team[i]) 
@@ -175,6 +191,11 @@ gs_draw=
 			rectfill(x-30,y+10,x+2,y+15,6)
 			print("\f0OUR HERO", x-29,y+10)
 		end	
+		if mode==scrimmage then
+			
+
+			print("\#6\f0 block ", 172,7)
+		endif	
 		if mode==base then
 			spr(player_base+18,x,y-3)
 			if player_base == block then
@@ -198,16 +219,16 @@ gs_draw=
 				print("\#6\f0stay", x+2,y-2) 
 			end	
 		end	
-		local neat= (player==1 and "o" or player)	
+		local neat=team[player].name	
 		if mode==move then
 
-			print("\#6\f0 ❎neat-"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
 		elseif mode==base then
-			print("\#6\f0 ❎neat-"..neat.."  🅾️mode      ⬆️⬇️base ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",72,1, black)
 		elseif mode==veer then
-			print("\#6\f0 ❎neat-"..neat.."  🅾️mode      ⬅️➡️veer  ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",72,1, black)
 		else --mode=scrimmage
-			print("\#6\f0 ❎scrimmage         🅾️strategy " ,0,1, black)
+			print("\#6\f0 ❎meet fate   🅾️set intentions " ,0,1, black)
 		end
 	
 	end
@@ -280,12 +301,12 @@ end
 function form_scrimmage()
 	team=
 	{
-		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=24,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=40,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=56,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=72,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line-16,y=88,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o"},
+		{x=scrimmage_line-16,y=24,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="doppel"},
+		{x=scrimmage_line-16,y=40,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="zeroxa"},
+		{x=scrimmage_line-16,y=56,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="mimeo "},
+		{x=scrimmage_line-16,y=72,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="aclona"},
+		{x=scrimmage_line-16,y=88,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="nate-o"},
 		{x=scrimmage_line+16,y=16,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+16,y=32,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+16,y=48,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
@@ -309,10 +330,42 @@ function _init()
 
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
-	
-	--go3d()
+
+	camera(scrimmage_line-64)
 	_update=gs_update.strategize
 	_draw=gs_draw.strategize
+end
+function shake(index)
+	local base_a,base_b
+		
+	for a=1, #team do
+		base_a=team[a].base
+		for b=1, #team do
+			base_b=team[b].base
+			overlap=detect_collision(index,i,dx,dy)
+			if (i!=index) then
+				
+					if (base_a==round) then
+
+					elseif (base_a==wedge)then	
+					else --base_a==block
+
+					end
+				
+
+			else
+				team[a].x+=rnd(4)-2+team[a].dx/4
+				team[a].y+=rnd(4)-2+team[a].dx/4
+			end
+		end 
+		if overlap < -8 or overlap >8 then
+			team[a].x+=rnd(4)-2+team[a].dx/4
+			team[a].y+=rnd(4)-2+team[a].dx/4
+		end	
+	end
+end
+function detect_collision(a_index,b_index,dx,dy)
+	return false
 end
 function sort_depth()
 	sort(team,comparators[orientation])
