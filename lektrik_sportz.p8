@@ -22,19 +22,19 @@ Doctor lamento wont stop...
 pawn neat-o must fight his clones.
 "too formidable!" he groans.
 
-"then I'll give you some teammates.
+"then I will give you teammates.
 stategize while fate awaits."
 
 oh, true neat-o, head crowned gold, 
 travel thee now home. Behold...
 
-now see his green stripe flashing--
+I see his green band flashing--
 cuts a figure so dashing.
 
 "i act with hostility."
 "engage the utility."
 
-lektrik electrickery!
+"lektrik electrickery!"
 oh what wicked wickery!
 
 ]]
@@ -61,9 +61,27 @@ palettes=
 
 gs_update=
 {
-	intro=function()
+	space=function()
+--[[		captain neat-o floats in space,
+so helpless and out of place.
 
+the situation is dire...
+suddenly there's ray gun fire!]]
 	end,
+
+	freeze=function()
+--[[		freeze, shrink, mimeo, and drop!
+		Doctor lamento wont stop...]]
+	end,
+	pawn=function()
+--[[		pawn neat-o must fight his clones.
+		"too formidable!" he groans.
+		
+		"then I will give you teammates.
+		stategize while fate awaits."]]
+	end,
+
+
 	strategize =function()
 		
 		if btnp(fire1) then
@@ -75,10 +93,11 @@ gs_update=
 				player=player%6+1
 				if player==1 then 
 					steady_cam_select(up)
-					go3d()
 					steady_cam(.8)
+					go3d()
 					sfx(1)
-					mode=scrimmage
+					_draw=gs_draw.gold
+					_update=gs_update.gold
 				end
 			end	
 		elseif btnp(fire2) then
@@ -145,6 +164,30 @@ gs_update=
 			if (team[player].tick==1) team[player].frame=(team[player].frame+1)%2
 		end
 	end,
+	gold=function()
+		--[[oh, true neat-o, head crowned gold, 
+travel thee now home. Behold...
+
+I see his green band flashing--
+cuts a figure so dashing.]]
+		team[qb].tick=(team[qb].tick+1)%team[qb].step
+		if (team[qb].tick==1) team[qb].frame=(team[qb].frame+1)%2
+		if btnp(fire1) then
+			_update=gs_update.play
+			_draw=gs_draw.play
+			sfx(0)
+		elseif btnp(fire2) then
+			go2d()
+			sfx(1)
+			mode=move
+			_update=gs_update.strategize
+			_draw=gs_draw.strategize
+		end		
+	end,
+
+	hostility=function()
+	end,
+
 	play=function()
 		if (btnp(fire1)) steady_cam_height(1)
 		if (btnp(fire2)) steady_cam_height(-1)
@@ -170,9 +213,25 @@ gs_update=
 }
 gs_draw=
 {
-	intro=function()
-
-	end,
+	space=function()
+		--[[		captain neat-o floats in space,
+		so helpless and out of place.
+		
+		the situation is dire...
+		suddenly there's ray gun fire!]]
+			end,
+		
+		freeze=function()
+	--[[		freeze, shrink, mimeo, and drop!
+			Doctor lamento wont stop...]]
+		end,
+		pawn=function()
+	--[[		pawn neat-o must fight his clones.
+			"too formidable!" he groans.
+			
+			"then I will give you teammates.
+			stategize while fate awaits."]]
+		end,
 	strategize =function()
 		--❎🅾️⬅️➡️⬆️⬇️
 		cls()
@@ -187,15 +246,10 @@ gs_draw=
 			end	
 		end
 		local x,y,player_base,dx,dy=team[player].x,team[player].y,team[player].base,team[player].dx,team[player].dy
-		if player==1 and mode!=scrimmage then
+		if player==1 then
 			rectfill(x-30,y+10,x+2,y+15,6)
 			print("\f0OUR HERO", x-29,y+10)
 		end	
-		if mode==scrimmage then
-			
-
-			print("\#6\f0 block ", 172,7)
-		endif	
 		if mode==base then
 			spr(player_base+18,x,y-3)
 			if player_base == block then
@@ -227,12 +281,37 @@ gs_draw=
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",72,1, black)
 		elseif mode==veer then
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",72,1, black)
-		else --mode=scrimmage
-			print("\#6\f0 ❎meet fate   🅾️set intentions " ,0,1, black)
+			
 		end
 	
-	end
-	,
+	end,
+	gold=function()
+		--[[oh, true neat-o, head crowned gold, 
+travel thee now home. Behold...
+
+I see his green band flashing--
+cuts a figure so dashing.]]
+		cls()
+		map(0,0)
+		animate_player(team[1]) 
+		for i=1,#team do
+			if i==player then
+				stand_player(team[i],.8,true)
+			else
+				stand_player(team[i],.8,false)
+
+			end	
+		end
+		print("\#6\f0               🅾️set intentions " ,0,1, black)
+		print("\#6\f0OH TRUE NEAT-O HEAD CROWNED GOLD,",0,100)
+		print("\#6\f0TRAVEL THEE NOW HOME. BEHOLD...  ", 0,107)
+		print("\#6\f0I SEE HIS GREEN BAND FLASHING--  ", 0,114)
+		print("\#6\f0CUTS A FIGURE SO DASHING.     ❎ " , 0,121)
+
+	end,
+
+	hostility=function()
+	end,
 	play=function()
 		cls()
 		map(0,0)
@@ -252,6 +331,25 @@ gs_draw=
 	end
 
 }
+function _init()
+	pal(palettes[1],1)
+	scrimmage_line=136
+	form_scrimmage()
+	offx=56
+	offy=56
+	mode=0
+	player=1
+	-- enable 3d mode  DEFECT remove prior to publication
+	menuitem(3,"3d",go3d)
+	menuitem(2,"2d",go2d)
+
+	steady_cam_x=team[qb].x
+	steady_cam_y=team[qb].y
+
+	camera(scrimmage_line-64)
+	_update=gs_update.strategize
+	_draw=gs_draw.strategize
+end
 function animate_player(player)
 	if (player.frame ==1) pal(15,4)
 	spr(player.s+4,player.x,player.y,2,2)
@@ -316,25 +414,7 @@ function form_scrimmage()
 	}
 	qb=1
 end
-function _init()
-	pal(palettes[1],1)
-	scrimmage_line=136
-	form_scrimmage()
-	offx=56
-	offy=56
-	mode=0
-	player=1
-	-- enable 3d mode  DEFECT remove prior to publication
-	menuitem(3,"3d",go3d)
-	menuitem(2,"2d",go2d)
 
-	steady_cam_x=team[qb].x
-	steady_cam_y=team[qb].y
-
-	camera(scrimmage_line-64)
-	_update=gs_update.strategize
-	_draw=gs_draw.strategize
-end
 function shake(index)
 	local base_a,base_b
 		
