@@ -25,17 +25,17 @@ suddenly there's ray gun fire!
 freeze, shrink, mimeo, and drop!
 doctor lamento wont stop...
 
-pawn neato-o must fight his clones.
+pawn neato-o battles his clones!
 "too formidable!" he groans.
 
 "then i will give you teammates.
-stategize while fate awaits...
+strategize while fate awaits...
 
 i act with hostility.
 engage the utility."
 
 honest neat-o, head crowned gold, 
-propelled toward home. behold...
+propels toward home. behold...
 
 hero, his green band flashing,
 cuts a figure so dashing.
@@ -277,19 +277,44 @@ gs_draw=
 		cls()
 		draw_stars()
 		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
-
 		print("\#6\f0                                ", 1,101)
-		print("\#6\f0HIS SITUATION IS DIRE...        ", 1,108)
-		print("\#6\f0SUDDENLY THERE'S RAY GUN FIRE!❎" , 1,115)
+		print("\#6\f0FREEZE, SHRINK, MIMEO, AND DROP!", 1,108)
+		print("\#6\f0SDOCTOR LAMENTO WONT STOP... ❎ " , 1,115)
 		print("\#6\f0                                ", 1,122)
 	end,	
-		pawn=function()
-	--[[		pawn neat-o must fight his clones.
-			"too formidable!" he groans.
-			
-			"then I will give you teammates.
-			stategize while fate awaits."]]
-		end,
+	pawn=function()
+		cls()
+		map(0,0)
+		animate_player(team[qb])
+
+		for i=7,#team do
+				spr(team[i].s+4,team[i].x,team[i].y,2,2)
+		end
+		local x,y=team[qb].x,team[qb].y
+		print("\#6\f0 OUR", x-14,y+4)--x-14
+		print("\#6\f0HERO", x-14,y+10)
+		print("\#6\f0                                ", 1,101)
+		print("\#6\f0PAWN NEATO-O BATTLES HIS CLONES!", 1,108)
+		print('\#6\f0S"TOO FORMIDABLE!" HE GROANS ❎ ' , 1,115)
+		print("\#6\f0                                ", 1,122)
+	end,
+	teammates=function()
+		cls()
+		map(0,0)
+		animate_player(team[qb])
+
+		for i=2,#team do
+				spr(team[i].s+4,team[i].x,team[i].y,2,2)
+		end
+		local x,y=team[qb].x,team[qb].y
+		print("\#6\f0 OUR", x-14,y+4)--x-14
+		print("\#6\f0HERO", x-14,y+10)
+		print("\#6\f0                                ", 1,101)
+		print("\#6\f0THEN I WILL GIVE YOU TEAMMATES. ", 1,108)
+		print("\#6\f0S"STRATEGIZE WHILE FATE AWAITS.❎" , 1,115)
+		print("\#6\f0  
+		
+	end
 	strategize =function()
 		--❎🅾️⬅️➡️⬆️⬇️
 		cls()
