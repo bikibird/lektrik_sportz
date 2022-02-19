@@ -1,41 +1,47 @@
 pico-8 cartridge // http://www.pico-8.com
 version 34
+__lua__
+
 -- lektrik sportz game
 -- by bikibird
 -- a captain neat-o adventure
 -- 3d functions borrowed from @mot https://www.lexaloffle.com/bbs/?tid=37982
 -- some functions heavily modified by me to add camera orientations for this specific game.
-__lua__
+
+-- submitted to toy box jam 3 
+-- just before the deadline on 2/22/2022.  
+-- what were you doing 30 years ago on this date?
 
 --[[
+
 --the story so far--
 
 captain neat-o floats in space,
 so helpless and out of place.
 
-the situation is dire...
+his situation is dire...
 suddenly there's ray gun fire!
 
 freeze, shrink, mimeo, and drop!
-Doctor lamento wont stop...
+doctor lamento wont stop...
 
-pawn neat-o must fight his clones.
+pawn neato-o must fight his clones.
 "too formidable!" he groans.
 
-"then I will give you teammates.
-stategize while fate awaits."
+"then i will give you teammates.
+stategize while fate awaits...
 
-oh, true neat-o, head crowned gold, 
-travel thee now home. Behold...
+i act with hostility.
+engage the utility."
 
-I see his green band flashing--
+honest neat-o, head crowned gold, 
+propelled toward home. behold...
+
+hero, his green band flashing,
 cuts a figure so dashing.
 
-"i act with hostility."
-"engage the utility."
-
-"lektrik electrickery!"
-oh what wicked wickery!
+lektrik electrickery!
+oh, what wicked wickery!
 
 ]]
 
@@ -62,28 +68,65 @@ palettes=
 gs_update=
 {
 	space=function()
---[[		captain neat-o floats in space,
-so helpless and out of place.
+		if btnp(fire1) then
+			_update=gs_update.dire
+			_draw=gs_draw.dire
+		end
+		spaceman.tick=(spaceman.tick+1)%spaceman.step
+		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
+		spaceman.y+=spaceman.dy
+		if (spaceman.y>49 or spaceman.y<40) spaceman.dy=-spaceman.dy
+		spaceman.x+=spaceman.dx
+		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
+		update_stars()
 
-the situation is dire...
-suddenly there's ray gun fire!]]
 	end,
+	dire=function()
+		if btnp(fire1) then
+			_update=gs_update.shrink
+			_draw=gs_draw.shrink
+		end
+		spaceman.tick=(spaceman.tick+1)%spaceman.step
+		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
+		spaceman.y+=spaceman.dy
+		if (spaceman.y>49 or spaceman.y<40) spaceman.dy=-spaceman.dy
+		spaceman.x+=spaceman.dx
+		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
 
-	freeze=function()
---[[		freeze, shrink, mimeo, and drop!
-		Doctor lamento wont stop...]]
-	end,
-	pawn=function()
---[[		pawn neat-o must fight his clones.
-		"too formidable!" he groans.
+		ray_gun.tick=(ray_gun.tick+1)%ray_gun.step
+		if (ray_gun.tick==1) ray_gun.frame=(ray_gun.frame+1)%2
+		ray_gun.y+=ray_gun.dy
+		if (ray_gun.y>52) ray_gun_ready=true
+		if (ray_gun_ready) then
+			if (ray_gun.y>60 or (ray_gun.y<52)) ray_gun.dy=-ray_gun.dy
+		end
 		
-		"then I will give you teammates.
-		stategize while fate awaits."]]
+		ray_gun.x+=ray_gun.dx
+		if (ray_gun.x>98 or ray_gun.x<94) ray_gun.dx=-ray_gun.dx
+		update_stars()
 	end,
+	shrink=function()
+		if btnp(fire1) then
+			_update=gs_update.shrink
+			_draw=gs_draw.shrink
+		end
+		spaceman.tick=(spaceman.tick+1)%spaceman.step
+		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
+		spaceman.y+=spaceman.dy
+		if (spaceman.y>49 or spaceman.y<40) spaceman.dy=-spaceman.dy
+		spaceman.x+=spaceman.dx
+		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
 
-
+		ray_gun.tick=(ray_gun.tick+1)%ray_gun.step
+		if (ray_gun.tick==1) ray_gun.frame=(ray_gun.frame+1)%2
+		ray_gun.y+=ray_gun.dy
+		if (ray_gun.y>49 or ray_gun.y<40) ray_gun.dy=-ray_gun.dy
+		ray_gun.x+=ray_gun.dx
+		if (ray_gun.x>98 or ray_gun.x<94) ray_gun.dx=-ray_gun.dx
+		update_stars()
+	end,
 	strategize =function()
-		
+		if (is3d)steady_cam(.8)
 		if btnp(fire1) then
 			if mode==scrimmage then
 				_update=gs_update.play
@@ -92,9 +135,9 @@ suddenly there's ray gun fire!]]
 			else
 				player=player%6+1
 				if player==1 then 
+					go3d()
 					steady_cam_select(up)
 					steady_cam(.8)
-					go3d()
 					sfx(1)
 					_draw=gs_draw.gold
 					_update=gs_update.gold
@@ -165,11 +208,6 @@ suddenly there's ray gun fire!]]
 		end
 	end,
 	gold=function()
-		--[[oh, true neat-o, head crowned gold, 
-travel thee now home. Behold...
-
-I see his green band flashing--
-cuts a figure so dashing.]]
 		team[qb].tick=(team[qb].tick+1)%team[qb].step
 		if (team[qb].tick==1) team[qb].frame=(team[qb].frame+1)%2
 		if btnp(fire1) then
@@ -182,12 +220,11 @@ cuts a figure so dashing.]]
 			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
-		end		
+		end	
+			
 	end,
-
 	hostility=function()
 	end,
-
 	play=function()
 		if (btnp(fire1)) steady_cam_height(1)
 		if (btnp(fire2)) steady_cam_height(-1)
@@ -214,17 +251,38 @@ cuts a figure so dashing.]]
 gs_draw=
 {
 	space=function()
-		--[[		captain neat-o floats in space,
-		so helpless and out of place.
+		cls()
+		draw_stars()
+		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+		print("\#6\f0                                ", 1,101)
+		print("\#6\f0CAPTAIN NEAT-O FLOATS IN SPACE, ", 1,108)
+		print("\#6\f0SO HELPLESS AND OUT OF PLACE.❎ " , 1,115)
+		print("\#6\f0                                ", 1,122)
+	
+	end,
 		
-		the situation is dire...
-		suddenly there's ray gun fire!]]
-			end,
-		
-		freeze=function()
-	--[[		freeze, shrink, mimeo, and drop!
-			Doctor lamento wont stop...]]
-		end,
+	dire=function()
+		cls()
+		draw_stars()
+		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+		sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+		print("\#6\f0                                ", 1,101)
+		print("\#6\f0HIS SITUATION IS DIRE...        ", 1,108)
+		print("\#6\f0SUDDENLY THERE'S RAY GUN FIRE!❎" , 1,115)
+		print("\#6\f0                                ", 1,122)
+
+
+	end,
+	shrink=function()
+		cls()
+		draw_stars()
+		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+
+		print("\#6\f0                                ", 1,101)
+		print("\#6\f0HIS SITUATION IS DIRE...        ", 1,108)
+		print("\#6\f0SUDDENLY THERE'S RAY GUN FIRE!❎" , 1,115)
+		print("\#6\f0                                ", 1,122)
+	end,	
 		pawn=function()
 	--[[		pawn neat-o must fight his clones.
 			"too formidable!" he groans.
@@ -247,8 +305,8 @@ gs_draw=
 		end
 		local x,y,player_base,dx,dy=team[player].x,team[player].y,team[player].base,team[player].dx,team[player].dy
 		if player==1 then
-			rectfill(x-30,y+10,x+2,y+15,6)
-			print("\f0OUR HERO", x-29,y+10)
+			print("\#6\f0 OUR", x-14,y+4)--x-14
+			print("\#6\f0HERO", x-14,y+10)
 		end	
 		if mode==base then
 			spr(player_base+18,x,y-3)
@@ -276,24 +334,26 @@ gs_draw=
 		local neat=team[player].name	
 		if mode==move then
 
-			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",0,1, black)
 		elseif mode==base then
-			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",0,1, black)
 		elseif mode==veer then
-			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",72,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",0,1, black)
 			
 		end
+		
+		--print("\#6\f0 "..team[1].x-team[2].x.." ", 0,20)
+		--print("\#6\f0 "..team[1].y-team[2].y.." ", 0,30)
 	
 	end,
 	gold=function()
-		--[[oh, true neat-o, head crowned gold, 
-travel thee now home. Behold...
+		--[[Thus, true NEAT-O, head crowned gold, 
+Impels toward home. Behold...
 
-I see his green band flashing--
-cuts a figure so dashing.]]
+There, now, his green band flashing--
+Cuts a figure so dashing.]]
 		cls()
 		map(0,0)
-		animate_player(team[1]) 
 		for i=1,#team do
 			if i==player then
 				stand_player(team[i],.8,true)
@@ -302,11 +362,13 @@ cuts a figure so dashing.]]
 
 			end	
 		end
-		print("\#6\f0               🅾️set intentions " ,0,1, black)
-		print("\#6\f0OH TRUE NEAT-O HEAD CROWNED GOLD,",0,100)
-		print("\#6\f0TRAVEL THEE NOW HOME. BEHOLD...  ", 0,107)
-		print("\#6\f0I SEE HIS GREEN BAND FLASHING--  ", 0,114)
-		print("\#6\f0CUTS A FIGURE SO DASHING.     ❎ " , 0,121)
+		print("\#6\f0                🅾️set intention " ,1,1, black)
+		print("\#6\f0HONEST NEAT-O,                   ",1,101)
+		print("\#6\f0HEAD CROWNED",58,101)
+		print("\#6\f0GOLD,",109,101)
+		print("\#6\f0IMPELS TOWARD HOME. BEHOLD...    ",1,108)
+		print("\#6\f0HERO, HIS GREEN BAND FLASHING, ", 1,115)
+		print("\#6\f0CUTS A FIGURE SO DASHING. ❎     " , 1,122)
 
 	end,
 
@@ -333,7 +395,7 @@ cuts a figure so dashing.]]
 }
 function _init()
 	pal(palettes[1],1)
-	scrimmage_line=136
+	scrimmage_line=64
 	form_scrimmage()
 	offx=56
 	offy=56
@@ -345,10 +407,12 @@ function _init()
 
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
-
+	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
+	ray_gun={x=96,y=-8,dx=.25,dy=.25,tick=0,frame=0,step=10}
+	init_stars()
 	camera(scrimmage_line-64)
-	_update=gs_update.strategize
-	_draw=gs_draw.strategize
+	_update=gs_update.space
+	_draw=gs_draw.space
 end
 function animate_player(player)
 	if (player.frame ==1) pal(15,4)
@@ -396,7 +460,7 @@ function steady_cam_height(dz)
 		p3d.camheight=5
 	end		
 end
-function form_scrimmage()
+function form_scrimmage(players)
 	team=
 	{
 		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o"},
@@ -411,6 +475,12 @@ function form_scrimmage()
 		{x=scrimmage_line+16,y=64,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+16,y=80,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+16,y=96,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=8,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=24,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=40,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=56,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=72,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+		{x=scrimmage_line+32,y=88,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 	}
 	qb=1
 end
@@ -422,30 +492,33 @@ function shake(index)
 		base_a=team[a].base
 		for b=1, #team do
 			base_b=team[b].base
-			overlap=detect_collision(index,i,dx,dy)
-			if (i!=index) then
-				
-					if (base_a==round) then
+			distance ={x=team[a].x+rnd(1)-.5+team[a].dx/64-team[b].x,y=team[a].y+rnd(1)-.5+team[a].dy/64-team[b].y}
+			if distance.x>=-4 and distance.x<=4 and distance.y>=-10 and distance.y<=10 then
+				--hit
+				if (a!=b) then  --if not self
+					if (a==qb and team[b].s==96) then 
+						sfx(2)
+						freeze=true
+					else
+						if (base_a==round) then
+							--change angle slightly dx, dy only no actual movement this turn.
+						elseif (base_a==wedge)then	
+						else --base_a==block do not move
 
-					elseif (base_a==wedge)then	
-					else --base_a==block
-
+						end
 					end
-				
 
+				else
+					team[a].x=distance.x+team[b].x
+					team[a].y=distance.y+team[b].y
+				end
 			else
-				team[a].x+=rnd(4)-2+team[a].dx/4
-				team[a].y+=rnd(4)-2+team[a].dx/4
-			end
+				team[a].x=distance.x+team[b].x
+				team[a].y=distance.y+team[b].y
+			end		
 		end 
-		if overlap < -8 or overlap >8 then
-			team[a].x+=rnd(4)-2+team[a].dx/4
-			team[a].y+=rnd(4)-2+team[a].dx/4
-		end	
+
 	end
-end
-function detect_collision(a_index,b_index,dx,dy)
-	return false
 end
 function sort_depth()
 	sort(team,comparators[orientation])
@@ -465,7 +538,35 @@ function sort(table, comparator)
 		end
     end
 end
-
+function init_stars()
+	stars={}
+	for i=0,3 do
+		for j=0,6 do
+			local star={x=flr(rnd(30))+(30*i)+4,y=flr(rnd(14))+(14*j)+4,c=6}
+			add(stars,star)		
+		end
+	end
+end
+function update_stars()
+	if star==nil then
+		star=flr(rnd(8)+1)
+		twinkle_time=time()
+		twinkle_wait=rnd(3)+.5
+	end	
+	if time()-twinkle_time>twinkle_wait then
+		if stars[star].c==6 then
+			stars[star].c=0
+		else
+			stars[star].c=6
+			star=nil
+		end	
+	end	
+end	
+function draw_stars()
+	for star in all(stars) do
+		pset(star.x,star.y,star.c)
+	end
+end	
 -- @mot's instant 3d+! heavily modified for this specific game.
 
 do
@@ -728,14 +829,14 @@ cccffccc00bb30000008800000888800822222220000000000000000000000003333333773333333
 00778cc000000000000000000cc87700000066c000000000000000000c6600000000000000000000000000000000000000000000000000000000000000000000
 00666800000000000000000000866600000666000000000000000000006660000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000666000000000000000000006660000000000000000000000000000000000000000000000000000000000000000000
-cc777777777777cccc777777777777cccc777777777777cccc777777777777cccc777777777777cccc777777777777cc00000000000000000000000000000000
-c56655667777767cc56655667777767cc56655667777767cc76777776655665cc76777776655665cc76777776655665c00000000000000000000000000000000
-c50655600077767cc50055660007767cc56005667000767cc76700076650065cc76770006655005cc76777000655605c00000000000000000000000000000000
-c50000000077767cc50000000007767cc56000000000767cc76700000000065cc76770000000005cc76777000000005c00000000000000000000000000000000
-c50655600077767cc50055660007767cc56005667000767cc76700076650065cc76770006655005cc76777000655605c00000000000000000000000000000000
-c56655667777767cc56655667777767cc56655667777767cc76777776655665cc76777776655665cc76777776655665c00000000000000000000000000000000
-cc555556677777cccc555556677777cccc555556677777cccc777776655555cccc777776655555cccc777776655555cc00000000000000000000000000000000
-cccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccc00000000000000000000000000000000
+cc777777777777cccc777777777777cccc777777777777cccc777777777777cccc777777777777cccc777777777777cc00049aa9000000000000000000000000
+c56655667777767cc56655667777767cc56655667777767cc76777776655665cc76777776655665cc76777776655665c0049aa94000000000000000000000000
+c50655600077767cc50055660007767cc56005667000767cc76700076650065cc76770006655005cc76777000655605c049aa940000000000000000000000000
+c50000000077767cc50000000007767cc56000000000767cc76700000000065cc76770000000005cc76777000000005c49a77a94000000000000000000000000
+c50655600077767cc50055660007767cc56005667000767cc76700076650065cc76770006655005cc76777000655605c49a77a94000000000000000000000000
+c56655667777767cc56655667777767cc56655667777767cc76777776655665cc76777776655665cc76777776655665c049aa940000000000000000000000000
+cc555556677777cccc555556677777cccc555556677777cccc777776655555cccc777776655555cccc777776655555cc49aa9400000000000000000000000000
+cccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccccccccc0000cccccc9aa94000000000000000000000000000
 ccc5666667677cccccc5666667677cccccc5666667677cccccc7767666665cccccc7767666665cccccc7767666665ccc00000000000000000000000000000000
 cc566666666667cccc566666666667cccc566666666667cccc766666666665cccc766666666665cccc766666666665cc00000000000000000000000000000000
 557777777755555c557777777775555c557777777777555cc555777777777755c555577777777755c55555777777775500000000000000000000000000000000
