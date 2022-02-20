@@ -31,8 +31,8 @@ pawn neato-o battles his clones!
 "then i will give you teammates.
 strategize while fate awaits...
 
-i act with hostility.
-engage the utility."
+i act with hostility!
+engage the utility!"
 
 honest neat-o, head crowned gold, 
 propels toward home. behold...
@@ -83,18 +83,151 @@ gs_update=
 	end,
 	dire=function()
 		if btnp(fire1) then
+			draw_shrink =cocreate
+			(
+				function()
+					local i,j,k,l,x,y
+					for i=1,10 do
+						cls()
+						draw_stars()
+						sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						print("\#6\f0FREEZE, SHRINK, MIMEO, AND DROP!", 1,101)	
+						yield()
+					end	
+					blast.x=ray_gun.x-8
+					blast.y=ray_gun.y
+					sfx(2)
+					while blast.x >spaceman.x+16 do 
+						fire_blast(true,false,spaceman.x,spaceman.y)
+						print("\#6\f8FREEZE\f0, SHRINK, MIMEO, AND DROP!", 1,101)	
+						yield() 
+					end
+
+					for i=2,8,.4 do
+						cls()
+						draw_stars()
+						sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						size=24*i/8
+						pal()
+						sspr(64,40,16,16,spaceman.x+16-size/2,spaceman.y+16-size/2,size,size,true)
+						pal(palettes[1])
+						print("\#6\f8FREEZE\f0, SHRINK, MIMEO, AND DROP!", 1,101)	
+						yield()
+					end
+
+					x,y=spaceman.x,spaceman.y
+					for i=1,30 do
+						cls()
+						draw_stars()
+						sspr(16,64,16,16,x,y,32,32)
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						print("\#6\f8FREEZE\f0, SHRINK, MIMEO, AND DROP!", 1,101)		
+						yield()
+					end	
+					blast.x=ray_gun.x-8
+					blast.y=ray_gun.y
+					sfx(2)
+					while blast.x > x+16 do 
+						fire_blast(false,false,x,y)
+						print("\#6\f0FREEZE, \f8SHRINK\f0, MIMEO, AND DROP!", 1,101)
+						yield() 
+					end
+					for i=1,8,.4 do
+						cls()
+						draw_stars()
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						size=24*i/8
+						shrinkage=32*(9-i)/8
+						sspr(16,64,16,16,x+16-shrinkage/2,y+16-shrinkage/2,shrinkage,shrinkage)
+						pal()
+						sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
+						pal(palettes[1])
+						print("\#6\f0FREEZE, \f8SHRINK\f0, MIMEO, AND DROP!", 1,101)		
+						yield()
+					end
+					for i=1,30 do
+						cls()
+						draw_stars()
+						sspr(16,64,16,16,x+16-shrinkage/2,y+16-shrinkage/2,8,8)
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						print("\#6\f0FREEZE, \f8SHRINK\f0, MIMEO, AND DROP!", 1,101)
+						yield()
+					end	
+					blast.x=ray_gun.x-8
+					blast.y=ray_gun.y
+					sfx(2)
+					while blast.x > x+16 do 
+						fire_blast(false,true,x,y)
+						print("\#6\f0FREEZE, SHRINK, \f8MIMEO\f0, AND DROP!", 1,101)	
+						yield() 
+					end
+					for i=1,8,.4 do
+						cls()
+						draw_stars()
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						size=24*i/8
+						if i <2 then
+							pal()
+							sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
+							pal(palettes[1])
+						else
+							for k=0,1 do
+								for l=0,1 do
+									sspr(16,64,16,16,x+12+k*8-shrinkage/2,y+12+l*8-shrinkage/2,shrinkage,shrinkage)
+								end
+							end
+						end	
+						pal()
+						sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
+						pal(palettes[1])
+						print("\#6\f0FREEZE, SHRINK, \f8MIMEO\f0, AND DROP!", 1,101)		
+						yield()
+						
+					end
+					for i=1,30 do
+						cls()
+						draw_stars()
+						for k=0,3 do
+							for l=0,3 do
+								sspr(16,64,16,16,x+4+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
+							end
+						end	
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						print("\#6\f0FREEZE, SHRINK, \f8MIMEO\f0, AND DROP!", 1,101)
+						yield()
+					end	
+					local dy=1
+					while y <128 do
+						cls()
+						draw_stars()
+						y+=dy
+						for k=0,3 do
+							for l=0,3 do
+								sspr(16,64,16,16,x+4+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
+							end
+						end	
+						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+						print("\#6\f0FREEZE, SHRINK, MIMEO, AND \f8DROP\f0!", 1,101)
+						dy*=1.2
+						yield()
+					end
+
+
+
+				end
+			)
 			_update=gs_update.shrink
-			_draw=gs_draw.shrink
+			_draw=gs_draw.shrink	
 		end
 		spaceman.tick=(spaceman.tick+1)%spaceman.step
 		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
+
 		spaceman.y+=spaceman.dy
 		if (spaceman.y>49 or spaceman.y<40) spaceman.dy=-spaceman.dy
 		spaceman.x+=spaceman.dx
 		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
-
-		ray_gun.tick=(ray_gun.tick+1)%ray_gun.step
-		if (ray_gun.tick==1) ray_gun.frame=(ray_gun.frame+1)%2
 		ray_gun.y+=ray_gun.dy
 		if (ray_gun.y>52) ray_gun_ready=true
 		if (ray_gun_ready) then
@@ -107,8 +240,9 @@ gs_update=
 	end,
 	shrink=function()
 		if btnp(fire1) then
-			_update=gs_update.shrink
-			_draw=gs_draw.shrink
+			_update=gs_update.pawn
+			_draw=gs_draw.pawn
+			pal(palette[1])
 		end
 		spaceman.tick=(spaceman.tick+1)%spaceman.step
 		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
@@ -116,31 +250,38 @@ gs_update=
 		if (spaceman.y>49 or spaceman.y<40) spaceman.dy=-spaceman.dy
 		spaceman.x+=spaceman.dx
 		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
-
-		ray_gun.tick=(ray_gun.tick+1)%ray_gun.step
-		if (ray_gun.tick==1) ray_gun.frame=(ray_gun.frame+1)%2
 		ray_gun.y+=ray_gun.dy
 		if (ray_gun.y>49 or ray_gun.y<40) ray_gun.dy=-ray_gun.dy
 		ray_gun.x+=ray_gun.dx
 		if (ray_gun.x>98 or ray_gun.x<94) ray_gun.dx=-ray_gun.dx
 		update_stars()
 	end,
+	pawn=function()
+		if btnp(fire1) then
+			_update=gs_update.teammates
+			_draw=gs_draw.teammates
+		end
+	end,
+	teammates=function()
+		if btnp(fire1) then
+			_update=gs_update.strategize
+			_draw=gs_draw.strategize
+		end
+	end,
+	
 	strategize =function()
-		if (is3d)steady_cam(.8)
+		--if (is3d)steady_cam(.8)
 		if btnp(fire1) then
 			if mode==scrimmage then
-				_update=gs_update.play
-				_draw=gs_draw.play
+				_update=gs_update.hostility
+				_draw=gs_draw.hostility
 				sfx(0)
 			else
 				player=player%6+1
 				if player==1 then 
-					go3d()
-					steady_cam_select(up)
-					steady_cam(.8)
-					sfx(1)
-					_draw=gs_draw.gold
-					_update=gs_update.gold
+					
+					_draw=gs_draw.hostility
+					_update=gs_update.hostility
 				end
 			end	
 		elseif btnp(fire2) then
@@ -207,9 +348,57 @@ gs_update=
 			if (team[player].tick==1) team[player].frame=(team[player].frame+1)%2
 		end
 	end,
+	hostility=function()
+		if btnp(fire1) then
+			go3d()
+			steady_cam_select(up)
+			gold_animation=cocreate
+			(
+				function()
+					local i=32
+					while (steady_cam_x <270) do
+						steady_cam(.8,i)
+						i+=4
+						yield()
+					end
+					for i=1,15 do  -- pause .5 seconds
+						yield()
+					end
+					i=32
+					while (steady_cam_x >32) do --reverse
+						steady_cam(.8,270-i)
+						i+=4
+						yield()
+					end
+					while true do
+						team[qb].x+=1
+						yield()
+						for i=1,3 do
+							yield()
+						end	
+						team[qb].x-=1
+						yield()
+					end
+					return
+				end	
+			)
+			--steady_cam(.8,388)
+			sfx(1)
+			show_home = true
+			_draw=gs_draw.gold
+			_update=gs_update.gold
+		elseif btnp(fire2) then
+			go2d()
+			sfx(1)
+			_draw=gs_draw.strategize
+			_update=gs_update.strategize
+		end
+	end,	
 	gold=function()
 		team[qb].tick=(team[qb].tick+1)%team[qb].step
 		if (team[qb].tick==1) team[qb].frame=(team[qb].frame+1)%2
+		coresume(gold_animation)
+		
 		if btnp(fire1) then
 			_update=gs_update.play
 			_draw=gs_draw.play
@@ -223,8 +412,7 @@ gs_update=
 		end	
 			
 	end,
-	hostility=function()
-	end,
+
 	play=function()
 		if (btnp(fire1)) steady_cam_height(1)
 		if (btnp(fire2)) steady_cam_height(-1)
@@ -254,10 +442,10 @@ gs_draw=
 		cls()
 		draw_stars()
 		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
-		print("\#6\f0                                ", 1,101)
-		print("\#6\f0CAPTAIN NEAT-O FLOATS IN SPACE, ", 1,108)
-		print("\#6\f0SO HELPLESS AND OUT OF PLACE.❎ " , 1,115)
-		print("\#6\f0                                ", 1,122)
+		print("\#6\f0CAPTAIN NEAT-O FLOATS IN SPACE, ", 1,101)
+		print("\#6\f0SO HELPLESS AND OUT OF PLACE.   " , 1,108)
+		print("\#6\f0                                ", 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
 	
 	end,
 		
@@ -266,21 +454,23 @@ gs_draw=
 		draw_stars()
 		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
 		sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
-		print("\#6\f0                                ", 1,101)
-		print("\#6\f0HIS SITUATION IS DIRE...        ", 1,108)
-		print("\#6\f0SUDDENLY THERE'S RAY GUN FIRE!❎" , 1,115)
-		print("\#6\f0                                ", 1,122)
+		
+		print("\#6\f0HIS SITUATION IS DIRE...        ", 1,101)
+		print("\#6\f0SUDDENLY THERE'S RAY GUN FIRE!  " , 1,108)
+		print("\#6\f0                                ", 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
 
 
 	end,
 	shrink=function()
-		cls()
-		draw_stars()
-		sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
-		print("\#6\f0                                ", 1,101)
-		print("\#6\f0FREEZE, SHRINK, MIMEO, AND DROP!", 1,108)
-		print("\#6\f0SDOCTOR LAMENTO WONT STOP... ❎ " , 1,115)
-		print("\#6\f0                                ", 1,122)
+		coresume(draw_shrink)
+		--cls()
+		--draw_stars()
+		--sspr(16*(spaceman.frame),64,16,16,spaceman.x,spaceman.y,32,32)
+		
+		print("\#6\f0DOCTOR LAMENTO WONT STOP...     " , 1,108)
+		print("\#6\f0                                ", 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
 	end,	
 	pawn=function()
 		cls()
@@ -293,10 +483,10 @@ gs_draw=
 		local x,y=team[qb].x,team[qb].y
 		print("\#6\f0 OUR", x-14,y+4)--x-14
 		print("\#6\f0HERO", x-14,y+10)
-		print("\#6\f0                                ", 1,101)
-		print("\#6\f0PAWN NEATO-O BATTLES HIS CLONES!", 1,108)
-		print('\#6\f0S"TOO FORMIDABLE!" HE GROANS ❎ ' , 1,115)
-		print("\#6\f0                                ", 1,122)
+		print("\#6\f0PAWN NEATO-O BATTLES HIS CLONES!", 1,101)
+		print('\#6\ff"too formidable!" '.."\#6\f0HE GROANS.    " , 1,108)
+		print("\#6\f0                                ", 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
 	end,
 	teammates=function()
 		cls()
@@ -309,12 +499,13 @@ gs_draw=
 		local x,y=team[qb].x,team[qb].y
 		print("\#6\f0 OUR", x-14,y+4)--x-14
 		print("\#6\f0HERO", x-14,y+10)
-		print("\#6\f0                                ", 1,101)
-		print("\#6\f0THEN I WILL GIVE YOU TEAMMATES. ", 1,108)
-		print("\#6\f0S"STRATEGIZE WHILE FATE AWAITS.❎" , 1,115)
-		print("\#6\f0  
 		
-	end
+		print('\#6\f8"THEN I WILL GIVE YOU TEAMMATES.', 1,101)
+		print('\#6\f8STRATEGIZE WHILE FATE AWAITS."  ' , 1,108)
+		print("\#6\f0                                ", 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
+		
+	end,
 	strategize =function()
 		--❎🅾️⬅️➡️⬆️⬇️
 		cls()
@@ -358,7 +549,6 @@ gs_draw=
 		end	
 		local neat=team[player].name	
 		if mode==move then
-
 			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",0,1, black)
 		elseif mode==base then
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",0,1, black)
@@ -366,17 +556,19 @@ gs_draw=
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",0,1, black)
 			
 		end
-		
-		--print("\#6\f0 "..team[1].x-team[2].x.." ", 0,20)
-		--print("\#6\f0 "..team[1].y-team[2].y.." ", 0,30)
-	
+	end,
+	hostility=function()
+		cls()
+		map(0,0)
+		for i=1,#team do
+			spr(team[i].s+4,team[i].x,team[i].y,2,2)
+		end
+		print("\#6\f0 🅾️ BACK                        ", 1,101)
+		print('\#6\f8        "i act with hostility!  ', 1,108)
+		print('\#6\f8          engage the utility!"  ' , 1,115)
+		print("\#6\f0                        NEXT ❎ ", 1,122)
 	end,
 	gold=function()
-		--[[Thus, true NEAT-O, head crowned gold, 
-Impels toward home. Behold...
-
-There, now, his green band flashing--
-Cuts a figure so dashing.]]
 		cls()
 		map(0,0)
 		for i=1,#team do
@@ -384,21 +576,19 @@ Cuts a figure so dashing.]]
 				stand_player(team[i],.8,true)
 			else
 				stand_player(team[i],.8,false)
-
 			end	
 		end
-		print("\#6\f0                🅾️set intention " ,1,1, black)
+		print("\#6\f0 🅾️ BACK                         " ,1,1, black)
 		print("\#6\f0HONEST NEAT-O,                   ",1,101)
 		print("\#6\f0HEAD CROWNED",58,101)
 		print("\#6\f0GOLD,",109,101)
-		print("\#6\f0IMPELS TOWARD HOME. BEHOLD...    ",1,108)
-		print("\#6\f0HERO, HIS GREEN BAND FLASHING, ", 1,115)
+		print("\#6\f0PROPELS TOWARD HOME. BEHOLD...   ",1,108)
+		print("\#6\f0HERO, HIS GREEN BAND FLASHING,   ", 1,115)
 		print("\#6\f0CUTS A FIGURE SO DASHING. ❎     " , 1,122)
-
+		print("\#6\f0"..steady_cam_x,1,10)
 	end,
 
-	hostility=function()
-	end,
+	
 	play=function()
 		cls()
 		map(0,0)
@@ -433,7 +623,8 @@ function _init()
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
 	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
-	ray_gun={x=96,y=-8,dx=.25,dy=.25,tick=0,frame=0,step=10}
+	ray_gun={x=96,y=-8,dx=.5,dy=.5}
+	blast={s=21,tick=0,frame=0,step=5}
 	init_stars()
 	camera(scrimmage_line-64)
 	_update=gs_update.space
@@ -462,8 +653,15 @@ function stand_player(player,scale,qb)
 		end	
 	pal(15,15) 
 end
-function steady_cam(scale)
-	local dx,dy=(steady_cam_x-team[qb].x)*.1,(steady_cam_y-team[qb].y)*.1
+function steady_cam(scale,x)
+	
+	local dx
+	if x then
+		dx=(steady_cam_x-x)*.1 
+	else
+		dx=(steady_cam_x-team[qb].x)*.1
+	end		
+	local dy=(steady_cam_y-team[qb].y)*.1
 	if (abs(dx) >.5) steady_cam_x-=dx
 	if (abs(dy) >.5) steady_cam_y-=dy
 	local offset=64-16*scale/2
@@ -504,8 +702,7 @@ function form_scrimmage(players)
 		{x=scrimmage_line+32,y=24,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+32,y=40,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+32,y=56,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+32,y=72,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+32,y=88,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
+
 	}
 	qb=1
 end
@@ -592,6 +789,24 @@ function draw_stars()
 		pset(star.x,star.y,star.c)
 	end
 end	
+function fire_blast(animate,shrink,x,y)
+	cls()
+	draw_stars()
+	if animate then
+		sspr(16*(spaceman.frame),64,16,16,x,y,32,32)
+	elseif shrink then
+		sspr(16,64,16,16,x+16-shrinkage/2,y+16-shrinkage/2,8,8)
+	else
+		sspr(16,64,16,16,x,y,32,32)
+	end	
+	sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
+	pal()
+	spr(blast.s+blast.frame,blast.x,blast.y)
+	pal(palettes[1])
+	blast.x-=2
+	blast.tick=(blast.tick+1)%blast.step
+	if (blast.tick==1) blast.frame=(blast.frame+1)%2
+end
 -- @mot's instant 3d+! heavily modified for this specific game.
 
 do
@@ -785,9 +1000,9 @@ __gfx__
 7ffffff409000000000880000088880099999998000000000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
 f5f5f5f4009009f0008988000888888098888882000000000000000000000000333333377333333377777777777777777777777777bbbbbbbbbbbb7777777777
 f555f5f40b77bb90089888808888888898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-f5f5f5f40b7b3300898888888889988898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-fffffff400bb3000888888888889988898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
-44444444000b0000088888808888888898888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+f5f5f5f40b7b3300898888888889988898888882000880000002200000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+fffffff400bb3000888888888889988898888882008ee8000028820000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
+44444444000b0000088888808888888898888882000880000002200000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
 ccc44ccc000b0000008888000888888098888882000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
 cccffccc00bb3000000880000088880082222222000000000000000000000000333333377333333377bbbbbbbbbbbb773333333377bbbbbbbbbbbb777bbbbbb7
 0000000000000000000000000000000000000000000000000000000000000000777777777777777777bbbbbbbbbbbb7733333333bbbbbbbb7777777773333337
