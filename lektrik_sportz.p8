@@ -22,7 +22,7 @@ so helpless and out of place.
 his situation is dire...
 suddenly there's ray gun fire!
 
-freeze, shrink, mimeo, and drop!
+freeze! shrink! mimeo! and drop!
 doctor lamento wont stop...
 
 pawn neato-o battles his clones!
@@ -42,6 +42,12 @@ cuts a figure so dashing.
 
 lektrik electrickery!
 oh, what wicked wickery!
+
+-- The End? --
+stout hearted Captain NEAT-O,
+his story not finito, 
+enlarged by experience, 
+conquered fate imperious.
 
 ]]
 
@@ -112,7 +118,7 @@ gs_update=
 						size=24*i/8
 						pal()
 						sspr(64,40,16,16,spaceman.x+16-size/2,spaceman.y+16-size/2,size,size,true)
-						pal(palettes[1])
+						pal(palettes[1],1)
 						print("\#6\f8FREEZE\f0, SHRINK, MIMEO, AND DROP!", 1,101)	
 						yield()
 					end
@@ -143,7 +149,7 @@ gs_update=
 						sspr(16,64,16,16,x+16-shrinkage/2,y+16-shrinkage/2,shrinkage,shrinkage)
 						pal()
 						sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
-						pal(palettes[1])
+						pal(palettes[1],1)
 						print("\#6\f0FREEZE, \f8SHRINK\f0, MIMEO, AND DROP!", 1,101)		
 						yield()
 					end
@@ -171,7 +177,7 @@ gs_update=
 						if i <2 then
 							pal()
 							sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
-							pal(palettes[1])
+							pal(palettes[1],1)
 						else
 							for k=0,1 do
 								for l=0,1 do
@@ -181,7 +187,7 @@ gs_update=
 						end	
 						pal()
 						sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
-						pal(palettes[1])
+						pal(palettes[1],1)
 						print("\#6\f0FREEZE, SHRINK, \f8MIMEO\f0, AND DROP!", 1,101)		
 						yield()
 						
@@ -242,7 +248,6 @@ gs_update=
 		if btnp(fire1) then
 			_update=gs_update.pawn
 			_draw=gs_draw.pawn
-			pal(palette[1])
 		end
 		spaceman.tick=(spaceman.tick+1)%spaceman.step
 		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
@@ -264,11 +269,12 @@ gs_update=
 	end,
 	teammates=function()
 		if btnp(fire1) then
+			scrimmage=false
+			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
 		end
 	end,
-	
 	strategize =function()
 		--if (is3d)steady_cam(.8)
 		if btnp(fire1) then
@@ -279,7 +285,7 @@ gs_update=
 			else
 				player=player%6+1
 				if player==1 then 
-					
+					arrow_message=true
 					_draw=gs_draw.hostility
 					_update=gs_update.hostility
 				end
@@ -288,7 +294,7 @@ gs_update=
 			if mode==scrimmage then
 				go2d()
 				sfx(1)
-				scrimage=false
+				scrimmage=false
 				mode=move
 			else
 				mode=(mode+1)%3
@@ -385,6 +391,7 @@ gs_update=
 			--steady_cam(.8,388)
 			sfx(1)
 			show_home = true
+		
 			_draw=gs_draw.gold
 			_update=gs_update.gold
 		elseif btnp(fire2) then
@@ -402,6 +409,7 @@ gs_update=
 		if btnp(fire1) then
 			_update=gs_update.play
 			_draw=gs_draw.play
+			steady_cam_select(left)
 			sfx(0)
 		elseif btnp(fire2) then
 			go2d()
@@ -412,29 +420,64 @@ gs_update=
 		end	
 			
 	end,
-
 	play=function()
-		if (btnp(fire1)) steady_cam_height(1)
-		if (btnp(fire2)) steady_cam_height(-1)
-		if btnp(down) then
-			steady_cam_select(down)
-		elseif btnp(up) then
-			p3d.camyoff+=1
-			steady_cam_select(up)
+
+		if (btnp(fire1)) then
+			 slo_mo= not slo_mo
 		elseif btnp(left) then
-			steady_cam_select(left)
+			team[qb].dx=team[qb].dx*nudge_x-team[qb].dy*nudge_y
+			team[qb].dy=team[qb].dy*nudge_x+team[qb].dx*nudge_y
+			arrow_message=false
 		elseif btnp(right) then
-			steady_cam_select(right)
+			team[qb].dx=team[qb].dx*nudge_x+team[qb].dy*nudge_y
+			team[qb].dy=team[qb].dy*nudge_x-team[qb].dx*nudge_y
+			arrow_message=false
 		end
+		frame=(frame+1)%4
+		if frame!=1 and slo_mo then
+			return
+		end
+		steady_cam(.8)
 		shake()
 		sort_depth()
-		steady_cam(.8)
+	end,
+	tackled=function()
+		if (btnp(fire1)) then
+			go2d()
+			scrimmage=false
+			mode=move
+			_update=gs_update.strategize
+			_draw=gs_draw.strategize
+		end
+	end,
+	embiggen=function()
+		local x,y=team[qb].x,team[qb].y
+		local dx,dy
+		local i
+		if #team>1 then
+			for i=1,#team do
+				if i != qb and not team[i].hide then
+					dx=x - team[i].x 
+					dy=y - team[i].y
+					if abs(dx) >3 or abs(dy) >3 then
+						team[i].x+=sgn(dx)*3
+						team[i].y+=sgn(dy)*3
+					else
+						team[qb].x=x- team[qb].heart*1.6 --16*.1
+						team[qb].y=y- team[qb].heart*1.6 --16*.1
+						team[qb].heart *= 1.1
+						team[i].hide=true
+					end
+				end
+			end
+		else
+			--next scene	
+		end	
 	end,
 	lose=function()
 	end,
 	win=function()
 	end
-
 }
 gs_draw=
 {
@@ -448,7 +491,6 @@ gs_draw=
 		print("\#6\f0                        NEXT ❎ ", 1,122)
 	
 	end,
-		
 	dire=function()
 		cls()
 		draw_stars()
@@ -534,18 +576,7 @@ gs_draw=
 				print("\#6\f0 sidestep ", 160,7)
 			end	
 		elseif mode==veer then
-			local x0,y0=x,y
-			local x1,y1=x0+dx*5,y0+dy*5
-			rectfill(x0-6,y0-6,x0+6,y0+6,0)
-			circfill(x0,y0,7,6)
-			circ(x0,y0,7,0)
-			line(x0,y0,x1,y1,3)
-			palt(0,false)
-			pset(x0,y0,0) 
-			palt()
-			if dx==0 and dy==0 then
-				print("\#6\f0stay", x+2,y-2) 
-			end	
+			draw_bearing(x,y,dx,dy)
 		end	
 		local neat=team[player].name	
 		if mode==move then
@@ -585,28 +616,32 @@ gs_draw=
 		print("\#6\f0PROPELS TOWARD HOME. BEHOLD...   ",1,108)
 		print("\#6\f0HERO, HIS GREEN BAND FLASHING,   ", 1,115)
 		print("\#6\f0CUTS A FIGURE SO DASHING. ❎     " , 1,122)
-		print("\#6\f0"..steady_cam_x,1,10)
+		
 	end,
-
-	
 	play=function()
+		draw_players()
+		draw_bearing(117,10,team[qb].dx,team[qb].dy,true)
+		if (slo_mo) print("\#6\f0 slo-mo ", 1,1)
+		if (arrow_message)print("\#6\f0   ⬅️➡️ to veer left and right   ", 1,122)	
+	end,
+	tackled=function()
+		draw_players()
+		print("\#6\f0 down # "..downs.."    yardage gain: "..yardage_gained.."      ", 1,1)
+		print("\#6\f0               strategize ❎     " , 1,122)	
+	end,
+	embiggen=function()
 		cls()
 		map(0,0)
 		for i=1,#team do
 			if i==player then
-				stand_player(team[i],.8,true)
+				stand_player(team[i],.8,true,true)
 			else
-				stand_player(team[i],.8,false)
-
+				stand_player(team[i],.8,false,true)
 			end	
 		end
-		
-	end,
-	lose=function()
 	end,
 	win=function()
 	end
-
 }
 function _init()
 	pal(palettes[1],1)
@@ -615,7 +650,8 @@ function _init()
 	offx=56
 	offy=56
 	mode=0
-	player=1
+	player=1  --for strategize
+	qb=1
 	-- enable 3d mode  DEFECT remove prior to publication
 	menuitem(3,"3d",go3d)
 	menuitem(2,"2d",go2d)
@@ -629,6 +665,13 @@ function _init()
 	camera(scrimmage_line-64)
 	_update=gs_update.space
 	_draw=gs_draw.space
+	
+	nudge_y=sin(.02)
+	nudge_x=cos(.02)
+	slo_mo=false
+	frame=0
+	downs=0
+	yardage=0
 end
 function animate_player(player)
 	if (player.frame ==1) pal(15,4)
@@ -638,12 +681,20 @@ end
 function steady_cam_select(angle)
 	orientation=angle
 end
-
-function stand_player(player,scale,qb)
+function stand_player(player,scale,qb,embiggen)
 	local n,x,y,w,h =player.s,player.x,player.y,16,16
+	if (player.hide) return
 	if (qb and player.frame ==1) pal(15,4)
 		if orientation==up then
-			sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
+			if embiggen then
+				if qb then
+					sspr(48,16,w,h,x,y,w*scale*player.heart,h*scale*player.heart)
+				else	
+					sspr(32,16,w,h,x,y,w*scale,h*scale)
+				end
+			else
+				sspr((n+orientation*2)%16*8,n\16*8,w,h,x,y,w*scale,h*scale)
+			end	
 		elseif orientation==down then
 			sspr((n+orientation*2)%16*8,n\16*8,w,h,288-x-w*scale,128-y-1.5*h,w*scale,h*scale)
 		elseif orientation==left then
@@ -654,7 +705,6 @@ function stand_player(player,scale,qb)
 	pal(15,15) 
 end
 function steady_cam(scale,x)
-	
 	local dx
 	if x then
 		dx=(steady_cam_x-x)*.1 
@@ -683,10 +733,13 @@ function steady_cam_height(dz)
 		p3d.camheight=5
 	end		
 end
+
+function init_scrimmage(players)
+end
 function form_scrimmage(players)
 	team=
 	{
-		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o"},
+		{x=scrimmage_line-32,y=56,s=32,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o",heart=.8},
 		{x=scrimmage_line-16,y=24,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="doppel"},
 		{x=scrimmage_line-16,y=40,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="zeroxa"},
 		{x=scrimmage_line-16,y=56,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="mimeo "},
@@ -702,14 +755,12 @@ function form_scrimmage(players)
 		{x=scrimmage_line+32,y=24,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+32,y=40,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
 		{x=scrimmage_line+32,y=56,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-
 	}
-	qb=1
+	
 end
 
 function shake(index)
 	local base_a,base_b
-		
 	for a=1, #team do
 		base_a=team[a].base
 		for b=1, #team do
@@ -720,17 +771,38 @@ function shake(index)
 				if (a!=b) then  --if not self
 					if (a==qb and team[b].s==96) then 
 						sfx(2)
-						freeze=true
-					else
+						yardage_gained=(team[qb].x-(scrimmage_line-24))/24
+						scrimmage_line=team[qb].x
+						downs+=1
+						if scrimmage_line < 372 then
+							_update=gs_update.tackled
+							_draw=gs_draw.tackled
+						else
+							steady_cam_select(up)
+							_update=gs_update.embiggen
+							_draw=gs_draw.embiggen
+						end	
+					else -- Trig facts: sin(a+b)=sin(a)cos(b)+cos(a)sin(b) cos(a+b)=cos(a)cos(b)-sin(a)sin(b)
 						if (base_a==round) then
+							if distance.y <0 then
+								team[a].dx=team[a].dx*nudge_x+team[a].dy*nudge_y
+								team[a].dy=team[a].dy*nudge_x-team[a].dx*nudge_y
+							else
+								team[a].dx=team[a].dx*nudge_x-team[a].dy*nudge_y
+								team[a].dy=team[a].dy*nudge_x+team[a].dx*nudge_y
+							end
 							--change angle slightly dx, dy only no actual movement this turn.
-						elseif (base_a==wedge)then	
-						else --base_a==block do not move
-
-						end
+						elseif (base_a==wedge)then	--pushes opponent asside
+							if distance.y <0 then
+								team[b].dx=team[b].dx*nudge_x+team[b].dy*nudge_y
+								team[b].dy=team[b].dy*nudge_x-team[b].dx*nudge_y
+							else
+								team[b].dx=team[b].dx*nudge_x-team[b].dy*nudge_y
+								team[b].dy=team[b].dy*nudge_x+team[b].dx*nudge_y
+							end
+						end  --block does not move
 					end
-
-				else
+				else  --path is clear
 					team[a].x=distance.x+team[b].x
 					team[a].y=distance.y+team[b].y
 				end
@@ -802,11 +874,41 @@ function fire_blast(animate,shrink,x,y)
 	sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
 	pal()
 	spr(blast.s+blast.frame,blast.x,blast.y)
-	pal(palettes[1])
+	pal(palettes[1],1)
 	blast.x-=2
 	blast.tick=(blast.tick+1)%blast.step
 	if (blast.tick==1) blast.frame=(blast.frame+1)%2
 end
+function draw_players()
+	cls()
+	map(0,0)
+	for i=1,#team do
+		if i==qb then
+			stand_player(team[i],.8,true)
+		else
+			stand_player(team[i],.8,false)
+
+		end	
+	end
+end		
+function draw_bearing(x,y,dx,dy,rotate)
+	local x0,y0=x,y
+	local x1,y1=x0+dx*5,y0+dy*5
+	if (not rotate) rectfill(x0-6,y0-6,x0+6,y0+6,0)
+	circfill(x0,y0,7,6)
+	circ(x0,y0,7,0)
+	if rotate then
+		line(x0,y0,x0+y1-y0,y0-x1+x0,3)
+	else
+		line(x0,y0,x1,y1,3)
+	end	
+	palt(0,false)
+	pset(x0,y0,0) 
+	palt()
+	if dx==0 and dy==0 then
+		print("\#6\f0stay", x+2,y-2) 
+	end	
+end	
 -- @mot's instant 3d+! heavily modified for this specific game.
 
 do
