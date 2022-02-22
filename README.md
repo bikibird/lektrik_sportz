@@ -2,7 +2,7 @@
 
 ## Toy Box Jam 3 entry
 
-The game was a knock off to begin with and then the orphans lost most of the pieces.  Still, they manage to have fun.
+Captain NEAT-O has fallen into the clutches of Dr Lamento and now must battle his most formidable enemy, himself.  Help Captain NEAT-O escape in this running game that looks a lot like like football.  It's not football; Dr Lamento threw the ball away.  Did I mention that he's evil?
 
 How to play:
 
