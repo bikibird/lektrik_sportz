@@ -48,10 +48,10 @@ his story not finito,
 enlarged by experience, 
 mastered fate imperious.
 
-so on to new adventures...
+so, on to new adventures...
 despite the past's vast treasures,
-hidden futures still unfold,
-awesome epic to be told.
+hidden futures still unfold
+awesome epics to be told.
 ]]
 
 left,right,up,down,fire1,fire2=0,1,2,3,4,5
@@ -489,36 +489,51 @@ gs_update=
 		end
 	end,
 	fly=function()
-		if team[qb].x <800 then
-			team[qb].x+=1
-			team[qb].y+=1
+		if team[qb].x <1000 then
+			team[qb].x+=2
+			team[qb].y+=2
 		
 		else
+			
 			go2d()
-			camera(0,0)
-			team[qb].y=0
-			team[qb].x=64-12.8*team[qb].heart/2
-			team[qb].y=64-12.8*team[qb].heart/2
-			_update=gs_update.drop
+			_update=gs_update.hover
 			_draw=gs_draw.drop
+			camera(0,0)
+			team[qb].x,team[qb].y=32,0
+			win_offset=0
+			return
 		end
-		steady_cam(.8,team[qb].x+12.8*team[qb].heart/2)
+		steady_cam(.8,team[qb].x, team[qb].y)
+	end,
+	hover=function()
+		team[qb].hover+=1
+		if team[qb].hover>40 then
+			_update=gs_update.drop
+		end
 	end,
 	drop=function()
 		if team[qb].y <128 then
 			
-			team[qb].y+=1
+			team[qb].y+=3
 		
 		else
-			
+			team[qb].y=16
 			_update=gs_update.win
 			_draw=gs_draw.win
 		end
-	
-		steady_cam(.8,team[qb].x+12.8*team[qb].heart/2)
+		camera(0,0)
+		--steady_cam(.8,team[qb].x+12.8*team[qb].heart/2)
 		
 	end,
 	win=function()
+		if win_offset <64 then
+			win_offset+=2
+		end	
+		if team[qb].y < 120 then
+			team[qb].y+=1
+		end	
+
+		camera(0,win_offset)
 	end
 }
 gs_draw=
@@ -705,8 +720,27 @@ gs_draw=
 	end,
 	drop=function()
 		cls()
+
+		sspr(16,16,16,16,team[qb].x,team[qb].y,64,64)
+	end,
+	win=function()
+		cls()
 		map(72,0)
-		spr(34,team[qb].x,team[qb].y,2,2)
+		spr(34,72,team[qb].y,2,2)
+		spr(robot.s,robot.x,robot.y,2,2)
+		rectfill(0,164,127,191,6)
+		
+		print("\#6\f0SO, ON TO NEW ADVENTURES...    ", 2,165)
+		print("\#6\f0                                ", 2,172)
+		print("\#6\f0DESPITE                        ", 2,172)
+		print("\#6\f0THE", 32,172)
+		print("\#6\f0PAST'", 47,172)
+		print("\#6\f0S", 66,172)
+		print("\#6\f0VAST", 72,172)
+		print("\#6\f0TREASURES,", 89,172)
+
+		print("\#6\f0HIDDEN FUTURES STILL UNFOLD    " , 2,179)
+		print("\#6\f0AWESOME EPICS TO BE TOLD.   ❎ ", 2,186)
 	end,
 }
 function _init()
@@ -721,7 +755,7 @@ function _init()
 	menuitem(3,"3d",go3d)
 	menuitem(2,"2d",go2d)
 
-
+	robot={s=160, x=48,y=114,dx=0,dy=0,tick=0,frame=0,step=5}
 	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
 	ray_gun={x=96,y=-8,dx=.5,dy=.5}
 	blast={s=21,tick=0,frame=0,step=5}
@@ -772,8 +806,12 @@ function stand_player(player,scale,qb,embiggen,fly)
 	end	
 	pal(15,15)
 end
-function steady_cam(scale,x)
+function steady_cam(scale,x,y)
 	local dx
+	if y then 
+		camera(x-64+12.8*team[qb].heart/2,y-64+12.8*team[qb].heart/2)
+		return
+	end
 	if x then
 		dx=(steady_cam_x-x)*.1 
 	else
@@ -807,7 +845,7 @@ end
 function form_scrimmage(players)
 	team=
 	{
-		{x=scrimmage_line-32,y=56,s=32,dx=0,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o",heart=.8},
+		{x=scrimmage_line-32,y=56,s=32,dx=0,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="neat-o",heart=.8,hover=0},
 		{x=scrimmage_line-16,y=24,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="doppel"},
 		{x=scrimmage_line-16,y=40,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="zeroxa"},
 		{x=scrimmage_line-16,y=56,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="mimeo "},
