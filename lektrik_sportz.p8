@@ -71,9 +71,10 @@ comparators=
 
 palettes=
 {
-	{[0]=0,1,2,3,11,5,6,7,8,9,10,131,12,13,140,139}
+	{[0]=0,1,2,3,11,5,6,7,8,9,10,131,12,13,140,139},
+	{[0]=0,1,2,3,4,5,6,7,8,9,10,131,12,13,140,139}
 }	
-
+months={"january","february","march","april","may","june","july","august","september","october","november","december"}
 gs_update=
 {
 	space=function()
@@ -526,6 +527,10 @@ gs_update=
 		
 	end,
 	win=function()
+		if btnp(fire1) then
+			_update=gs_update.stats
+			_draw=gs_draw.stats
+		end
 		if win_offset <64 then
 			win_offset+=2
 		end	
@@ -720,8 +725,7 @@ gs_draw=
 	end,
 	drop=function()
 		cls()
-
-		sspr(16,16,16,16,team[qb].x,team[qb].y,64,64)
+		sspr(16,16,16,16,team[qb].x-8,team[qb].y,80,80)
 	end,
 	win=function()
 		cls()
@@ -742,8 +746,26 @@ gs_draw=
 		print("\#6\f0HIDDEN FUTURES STILL UNFOLD    " , 2,179)
 		print("\#6\f0AWESOME EPICS TO BE TOLD.   ❎ ", 2,186)
 	end,
+	stats=function()
+		cls()
+		map(72,0)
+		pal(palettes[2])
+		spr(34,72,team[qb].y,2,2)
+		palt(0,false)
+		spr(robot.s,robot.x,robot.y,2,2)
+		palt()
+		spr(raygun.s,raygun.x,raygun.y,2,1)
+		color(7)
+		print("\^pTHE END?",32,90)
+		print("\#6\f0                                ", 0,165)
+		print("\#6\f0 "..sys_date.."                " , 0,172)
+		print("\#6\f0 home safe after "..downs.." downs            ", 0,179)
+		print("\#6\f0                                ", 0,186)
+	end,
 }
 function _init()
+	srand(stat(80)*365+stat(81)*31+stat(82))
+	sys_date=months[stat(81)].." "..stat(82)..", "..stat(80)
 	pal(palettes[1],1)
 	scrimmage_line=64
 	offx=56
@@ -751,9 +773,9 @@ function _init()
 	mode=0
 	player=1  --for strategize
 	qb=1
-	-- enable 3d mode  DEFECT remove prior to publication
-	menuitem(3,"3d",go3d)
-	menuitem(2,"2d",go2d)
+	-- enable 3d mode
+	--menuitem(3,"3d",go3d)
+	--menuitem(2,"2d",go2d)
 
 	robot={s=160, x=48,y=114,dx=0,dy=0,tick=0,frame=0,step=5}
 	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
