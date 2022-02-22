@@ -172,7 +172,7 @@ gs_update=
 							sspr(64,40,16,16,x+16-size/2,y+16-size/2,size,size,true)
 							pal(palettes[1],1)
 						else
-							for k=0,1 do
+							for k=0,1 do --print 4 neatos
 								for l=0,1 do
 									sspr(16,64,16,16,x+12+k*8-shrinkage/2,y+12+l*8-shrinkage/2,shrinkage,shrinkage)
 								end
@@ -185,9 +185,9 @@ gs_update=
 						yield()
 					end
 					for i=1,30 do
-						for k=0,3 do
+						for k=0,2 do
 							for l=0,3 do
-								sspr(16,64,16,16,x+4+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
+								sspr(16,64,16,16,x+8+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
 							end
 						end	
 						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
@@ -197,9 +197,9 @@ gs_update=
 					local dy=1
 					while y <128 do
 						y+=dy
-						for k=0,3 do
+						for k=0,2 do
 							for l=0,3 do
-								sspr(16,64,16,16,x+4+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
+								sspr(16,64,16,16,x+8+k*8-shrinkage/2,y+4+l*8-shrinkage/2,shrinkage,shrinkage)
 							end
 						end	
 						sspr(64,56,16,8,ray_gun.x,ray_gun.y,16,8,true)
@@ -791,13 +791,14 @@ gs_draw=
 	end,
 	tackled=function()
 		draw_players()
-		print("\#6\f0 down #"..downs.."    yardage gain: "..yardage_gained.."       ", 1,1)
-		print("\#6\f0               strategize ❎     " , 1,122)	
+		print("\#6\f0 down #"..downs.."  yardage gain: "..yardage_gained.."         ", 1,1)
+		print("\#6\f0                  strategize ❎  " , 1,122)	
+		
 	end,
 	out_of_bounds=function()
 		draw_players()
-		print("\#6\f0 down #"..downs.."    yardage gain: "..yardage_gained.."       ", 1,1)
-		print("\#6\f0 out of bounds!     strategize ❎ " , 1,122)	
+		print("\#6\f0 down #"..downs.."  yardage gain: "..yardage_gained.."          ", 1,1)
+		print("\#6\f0 out of bounds!   strategize ❎  " , 1,122)
 	end,
 	embiggen=function()
 		cls()
@@ -1076,7 +1077,7 @@ function shake()
 			if a==qb and (team[a].y<-14 or team[a].y>125 or team[a].x <-14) then --out_of_bounds
 
 				sfx(2)
-				yardage_gained=(team[qb].x-(scrimmage_line-24))/24
+				yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4
 				scrimmage_line=team[qb].x
 				if scrimmage_line < 260 then
 					downs+=1
