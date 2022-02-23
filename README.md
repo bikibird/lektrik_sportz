@@ -5,7 +5,7 @@ Let's get one thing straight. This is not Electric Football™. Doctor Lamento d
 
 The evil Doctor forces our hero to face off against his most formidable opponent, NEAT-O himself, in a spectacle the Doctor calls Lektrik Sportz Game (because he can't spell and, you know, he's evil.)
 
-###Game Play
+### Game Play
 Run from one end of the field to the other while avoiding your opponents. You should make it home in under 5 minutes. Don't fall off.
 
 Your teammates can help block the opponents and you can set their overall direction and confrontation style in the strategy session.
