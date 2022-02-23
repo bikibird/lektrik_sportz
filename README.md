@@ -1,5 +1,5 @@
 # Lektrik Sportz Game
-## [Toy Box Jam 3 entry](https://itch.io/jam/toy-box-jam-3/entries)
+## [Toy Box Jam 3 Entry](https://itch.io/jam/toy-box-jam-3/entries)
 ### A Captain NEAT-O Adventure
 Let's get one thing straight. This is not Electric Football™. Doctor Lamento destroyed the football years ago because, you know, he's evil. But, I get ahead of myself. This is the story of Captain NEAT-O who is far from home and falls into the clutches of Doctor Lamento.
 
