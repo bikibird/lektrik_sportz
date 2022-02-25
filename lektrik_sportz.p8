@@ -59,8 +59,7 @@ orientation =up
 move,base,veer,scrimmage=0,1,2,3,4
 wedge,round,block=0,1,2
 ascending_x,ascending_y=4,5 
-camera_x=0x5f28
-cameray_y=0x5f2a 
+
 comparators=
 {
 	[up]=function(a,b) return a.y < b.y end,
@@ -81,7 +80,7 @@ months={"january","february","march","april","may","june","july","august","septe
 gs_update=
 {
 	space=function()
-		if btnp(fire1) then
+		if btnp(fire2) then
 			_update=gs_update.dire
 			_draw=gs_draw.dire
 		end
@@ -95,7 +94,7 @@ gs_update=
 
 	end,
 	dire=function()
-		if btnp(fire1) and ray_gun.y>49 then
+		if btnp(fire2) and ray_gun.y>49 then
 			draw_shrink =cocreate
 			(
 				function()
@@ -238,8 +237,9 @@ gs_update=
 		update_stars()
 	end,
 	shrink=function()
-		if btnp(fire1) and dropped then
+		if btnp(fire2) and dropped then
 			form_scrimmage()
+			--panner=cocreate(pan)
 			_update=gs_update.pawn
 			_draw=gs_draw.pawn
 
@@ -257,7 +257,8 @@ gs_update=
 		update_stars()
 	end,
 	pawn=function()
-		if btnp(fire1) then
+	--	coresume(panner)
+		if btnp(fire2) then
 			_update=gs_update.teammates
 			_draw=gs_draw.teammates
 			drop_teammates=cocreate
@@ -286,17 +287,19 @@ gs_update=
 		end
 	end,
 	teammates=function()
-		if btnp(fire1) then
+		if btnp(fire2) then
 			scrimmage=false
 			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
+		--	panner=cocreate(pan)
 			music(-1, 300)
 			music(1,500)
 		end
 	end,
 	strategize =function()
-		if btnp(fire1) then
+	--	coresume(panner)
+		if btnp(fire2) then
 			if mode==scrimmage then
 				_update=gs_update.hostility
 				_draw=gs_draw.hostility
@@ -307,13 +310,12 @@ gs_update=
 				player=player%6+1
 				if player==1 then
 					music(-1, 300)
-					music(2,500) 
 					arrow_message=true
 					_draw=gs_draw.hostility
 					_update=gs_update.hostility
 				end
 			end	
-		elseif btnp(fire2) then
+		elseif btnp(fire1) then
 			if mode==scrimmage then
 				go2d()
 				sfx(1)
@@ -327,16 +329,26 @@ gs_update=
 				if (team[player].y<111) team[player].y+=1
 			elseif mode==base then
 				team[player].base=(team[player].base+1)%3	
+			elseif mode==veer then
+				if team[player].dx==0 and team[player].dy==0 then
+					team[player].angle=100 
+					dx=1 --any non-zero value
+				else	
+					team[player].angle-=5	
+				end		
+				if (team[player].angle < 0) then
+					team[player].dx,team[player].dy=0,0
+					team[player].angle = 100
+				else	
+					team[player].dx=cos(team[player].angle/100)
+					team[player].dy=sin(team[player].angle/100)
+				end		
 			end	
 		elseif btnp(up) then
 			if mode==move then
 				if (team[player].y>-11) team[player].y-=1
 			elseif mode==base then
 				team[player].base=(team[player].base-1)%3	
-			end	
-		elseif btnp(left) then
-			if mode==move then
-				if (team[player].x>0) team[player].x-=1
 			elseif mode==veer then
 				if team[player].dx==0 and team[player].dy==0 then
 					team[player].angle=0 
@@ -351,25 +363,23 @@ gs_update=
 				else	
 					team[player].dx=cos(team[player].angle/100)
 					team[player].dy=sin(team[player].angle/100)
-				end	
+				end		
+			end	
+		elseif btnp(left) then
+			if mode==move then
+				if (team[player].x>0) team[player].x-=1
+			else
+				cam_x,cam_y=camera()
+				cam_x-=16
+				if (cam_x < -64) cam_x=-64
 			end	
 		elseif btnp(right) then
 			if mode==move then
 				if (team[player].x<scrimmage_line-8) team[player].x+=1
-			elseif mode==veer then
-				if team[player].dx==0 and team[player].dy==0 then
-					team[player].angle=100 
-					dx=1 --any non-zero value
-				else	
-					team[player].angle-=5	
-				end		
-				if (team[player].angle < 0) then
-					team[player].dx,team[player].dy=0,0
-					team[player].angle = 100
-				else	
-					team[player].dx=cos(team[player].angle/100)
-					team[player].dy=sin(team[player].angle/100)
-				end	
+			else
+				cam_x,cam_y=camera()
+				cam_x+=16
+				if (cam_x > 216) cam_x=216
 			end	
 		end
 		if mode==move then
@@ -378,7 +388,7 @@ gs_update=
 		end
 	end,
 	hostility=function()
-		if btnp(fire1) then
+		if btnp(fire2) then
 			go3d()
 			steady_cam_select(up)
 			gold_animation=cocreate
@@ -422,12 +432,13 @@ gs_update=
 		
 			_draw=gs_draw.gold
 			_update=gs_update.gold
-		elseif btnp(fire2) then
+		elseif btnp(fire1) then
 			go2d()
 			music(-1, 300)
 			music(1,500)
 			_draw=gs_draw.strategize
 			_update=gs_update.strategize
+		--	panner=cocreate(pan)
 		end
 	end,	
 	gold=function()
@@ -435,35 +446,41 @@ gs_update=
 		if (team[qb].tick==1) team[qb].frame=(team[qb].frame+1)%2
 		coresume(gold_animation)
 		
-		if btnp(fire1) then
+		if btnp(fire2) then
 			_update=gs_update.play
 			_draw=gs_draw.play
 			steady_cam_select(left)
 			--sfx(0)
-		elseif btnp(fire2) then
+		elseif btnp(fire1) then
 			go2d()
-			music(1,1000)
+			music(-1, 300)
+			music(1,500)
 			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
+			
+		--	panner=cocreate(pan)
 		end	
 			
 	end,
 	play=function()
-
-		if (btnp(fire1)) then
+		if (btnp(fire2)) then
 			 slo_mo= not slo_mo
 		elseif btnp(left) then
-			team[qb].dy=-.0625
+			team[qb].dy=-.015625
+			dx=0
 			arrow_message=false
 		elseif btnp(right) then
-			team[qb].dy=.0625
+			team[qb].dy=.015625
+			dx=0
 			arrow_message=false
 		elseif btnp(up) then
-			team[qb].dx=.0625
+			team[qb].dx=.015625
+			dy=0
 			arrow_message=false
 		elseif btnp(down) then
-			team[qb].dx=-.0625
+			team[qb].dx=-.015625
+			dy=0
 			arrow_message=false	
 		end
 		team[qb].tick=(team[qb].tick+1)%team[qb].step
@@ -488,7 +505,7 @@ gs_update=
 
 	end,
 	tackled=function()
-		if (btnp(fire1)) then
+		if (btnp(fire2)) then
 			go2d()
 			form_scrimmage()
 			camera(team[qb].x-51,0)	
@@ -496,10 +513,13 @@ gs_update=
 			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
+			music(-1, 300)
+			music(1,500)
+		--	panner=cocreate(pan)
 		end
 	end,
 	out_of_bounds=function()
-		if (btnp(fire1)) then
+		if (btnp(fire2)) then
 			go2d()
 			form_scrimmage()
 			camera(team[qb].x-51,0)	
@@ -507,6 +527,9 @@ gs_update=
 			mode=move
 			_update=gs_update.strategize
 			_draw=gs_draw.strategize
+			music(-1, 300)
+			music(1,500)
+		--	panner=cocreate(pan)
 		end
 	end,
 	embiggen=function()
@@ -539,7 +562,7 @@ gs_update=
 		end	
 	end,
 	epilog=function()
-		if btnp(fire1) then
+		if btnp(fire2) then
 			music(8,1000)
 			_update=gs_update.fly
 			_draw=gs_draw.fly
@@ -585,7 +608,7 @@ gs_update=
 		
 	end,
 	win=function()
-		if btnp(fire1) then
+		if btnp(fire2) then
 			ray_gun.y=1
 			drop_ray_gun=cocreate(
 				function()
@@ -628,7 +651,7 @@ gs_update=
 	end,
 	stats=function()
 		coresume(drop_ray_gun)
-		if btnp(fire1) then
+		if btnp(fire2) then
 			reload()
 			_init()
 		end
@@ -673,6 +696,7 @@ gs_draw=
 		
 	end,	
 	pawn=function()
+		camera(scrimmage_line-48,0)
 		cls()
 		map(0,0)
 		animate_player(team[qb])
@@ -683,12 +707,15 @@ gs_draw=
 		local x,y=team[qb].x,team[qb].y
 		print("\#6\f0 OUR", x-14,y+4)--x-14
 		print("\#6\f0HERO", x-14,y+10)
+		cam_x,cam_y=camera()
 		print("\#6\f0PAWN NEATO-O BATTLES HIS CLONES!", 1,101)
 		print('\#6\ff"too formidable!" '.."\#6\f0HE GROANS.    " , 1,108)
 		print("\#6\f0                                ", 1,115)
 		print("\#6\f0                        NEXT ❎ ", 1,122)
+		camera(cam_x,cam_y)
 	end,
 	teammates=function()
+		camera(scrimmage_line-48,0)
 		cls()
 		map(0,0)
 		animate_player(team[qb])
@@ -699,14 +726,15 @@ gs_draw=
 		local x,y=team[qb].x,team[qb].y
 		print("\#6\f0 OUR", x-14,y+4)--x-14
 		print("\#6\f0HERO", x-14,y+10)
+		cam_x,cam_y=camera()
 		print('\#6\f8"THEN I WILL GIVE YOU TEAMMATES.', 1,101)
 		print('\#6\f8STRATEGIZE WHILE FATE AWAITS."  ' , 1,108)
 		print("\#6\f0                                ", 1,115)
 		print("\#6\f0                        NEXT ❎ ", 1,122)
-		
+		camera(cam_x,cam_y)
 	end,
 	strategize =function()
-		
+		camera(scrimmage_line-48,0)
 		cls()
 		map(0,0)
 		for i=1,#team do
@@ -743,8 +771,11 @@ gs_draw=
 			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",0,1, black)
 		elseif mode==base then
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",0,1, black)
+			print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
+			--print("\#6\f0 "..cam_x, 1,122)
 		elseif mode==veer then
-			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬅️➡️veer  ",0,1, black)
+			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️veer  ",0,1, black)
+			print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
 		end
 		camera(cam_x,camy)
 	end,
@@ -792,7 +823,8 @@ gs_draw=
 	tackled=function()
 		draw_players()
 		print("\#6\f0 down #"..downs.."  yardage gain: "..yardage_gained.."         ", 1,1)
-		print("\#6\f0                  strategize ❎  " , 1,122)	
+		print("\#6\f0 ",1,122)
+		print("\#6\f0TACKLED BY "..tackled_by.." STRATEGIZE ❎        " , 2,122)	
 		
 	end,
 	out_of_bounds=function()
@@ -881,7 +913,7 @@ gs_draw=
 }
 function _init()
 	
-	sys_date=months[stat(81)].." "..stat(82)..", "..stat(80)
+	sys_date=months[stat(91)].." "..stat(92)..", "..stat(90)
 	pal(palettes[1],1)
 	scrimmage_line=64
 	offx=56
@@ -889,9 +921,8 @@ function _init()
 	mode=0
 	player=1  --for strategize
 	qb=1
-	-- enable 3d mode
-	--menuitem(3,"3d",go3d)
-	--menuitem(2,"2d",go2d)
+	menuitem(3,"3d",go3d)
+	menuitem(2,"2d",go2d)
 
 	robot={s=160, x=32,y=122,dx=0,dy=0,tick=0,frame=0,step=5}
 	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
@@ -901,14 +932,14 @@ function _init()
 	camera(scrimmage_line-64)
 	_update=gs_update.space
 	_draw=gs_draw.space
-	
+	will=up
 	nudge_y=sin(.02)
 	nudge_x=cos(.02)
 	slo_mo=false
 	frame=0
 	downs=0
 	yardage=0
-
+	cam_x,cam_y=0,0
 	music(2)
 end
 function animate_player(player)
@@ -992,39 +1023,60 @@ function form_scrimmage(players)
 		{x=scrimmage_line-16,y=72,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="aclona",bounce=true},
 		{x=scrimmage_line-16,y=88,s=64,dx=1,dy=0,angle=0,base=block,tick=0,frame=0,step=5,name="nate-o",bounce=true}
 	}
-	local i,dx,dy,x,y,base
-	srand(stat(80)*365+stat(81)*31+stat(82))  -- different strategy everyday, but same every play.
+	local i,dx,dy,x,y,base,target,a,b,c
+	srand(stat(90)*365+stat(91)*31+stat(92))  -- different strategy everyday, but same every play.
 	for i=1, 6 do
-		x=scrimmage_line+20-rnd(8)
-		y=16*i+4-rnd(4)
+		x=scrimmage_line+6+rnd(90)
+		y=16*i+8-rnd(8)
 		dx=-rnd(.5)
 		dy=rnd(1)-.5
 		base=rnd({1,2,3})
-		add(team,{x=x,y=y,s=96,dx=dx,dy=dy,base=base,tick=0,frame=0,step=5})
+		target=rnd({2,3,4,5,6,7})
+		a=team[target].x-x
+		b=team[target].y-y
+		c=sqrt(a*a+b*b)
+		add(team,{x=x,y=y,s=96,dx=a/c,dy=b/c,base=base,tick=0,frame=0,step=5})
 	end
---[[		{x=scrimmage_line+16,y=16,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+16,y=32,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+16,y=48,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+16,y=64,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+16,y=80,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},
-		{x=scrimmage_line+16,y=96,s=96,dx=0,dy=0,base=block,tick=0,frame=0,step=5},]]
+	team[7].name="ersass"
+	team[8].name="shaddo"
+	team[9].name="simul"
+	team[10].name="eko"
+	team[11].name="shammo"
+	team[12].name="teona"
+
+	sacker=rnd({7,8,9,10,11,12})
 	qb=1
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
 end
 
 function shake()
-	local base_a,base_b
+	local base_a,base_b,dx,dy
 	for a=1, #team do
 		base_a=team[a].base
 		for b=1, #team do
 			base_b=team[b].base
+			if a==sacker then
+				dx=team[a].x-team[qb].x
+				dy=team[a].x-team[qb].y
+				if dx<0 then
+					team[a].dx=1
+				else
+					team[a].dx=-1
+				end	
+				if dy<0 then
+					team[a].dy=1
+				else
+					team[a].dy=-1
+				end	
+			end	
 			if a==qb then
 				distance =
 				{
 					x=team[a].x+rnd(1)-.5+team[a].dx-team[b].x,
 					y=team[a].y+rnd(1)-.5+team[a].dy-team[b].y
 				}
+			
 			else
 				distance =
 				{
@@ -1035,9 +1087,10 @@ function shake()
 			if distance.x>=-3 and distance.x<=3 and distance.y>=-8 and distance.y<=8 then
 				--hit
 				if (a!=b) then  --if not self
-					if (a==qb and team[b].s==96) then 
+					if (a==qb and team[b].s==96) then --tackled
 						
 						sfx(2)
+						tackled_by=team[b].name
 						yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4 --10 yards= 24 pixels
 						scrimmage_line=team[qb].x
 						if scrimmage_line < 260 then
@@ -1186,6 +1239,20 @@ function draw_bearing(x,y,dx,dy,rotate)
 		print("\#6\f0stay", x+2,y-2) 
 	end	
 end	
+function pan()
+	local cam_x,cam_y=camera()
+	
+	while cam_x < 216 do
+		cam_x+=4
+		camera(cam_x,cam_y)
+		yield()
+	end
+	while cam_x> scrimmage_line-48 do
+		cam_x-=4
+		camera(cam_x,cam_y)
+		yield()
+	end		
+end
 -- @mot's instant 3d+! heavily modified for this specific game.
 
 do
@@ -1699,8 +1766,8 @@ __sfx__
 011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033115151c1351d1351c1351d135115151d1350c03323135115152213523116221352013522135
 0112000001435014352a5110543530615064352a5110743508435115152a5110d435306150143502435034350443513135141350743516135171350a435191351a1350d4351c1351d1351c1351d1352a5011e131
 011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033192351a235246151c2351d2350c0331f235202350c033222352323522235232352a50130011
-010c00001075513755187451c7451f735247252b71512755157551a7451e74521735267252d71514755177551c7452074523735287252f7153472500000000000000000000000000000000000000000000000000
-010c0000000001072513725187251c7251f725247252b70512725157251a7251e72521725267252d70514725177251c7252072523725287252f72534705000001ca051ca051ca051ca051ca051ca051ca051ca05
+000c16001075513755187451c7451f735247252b71512755157551a7451e74521735267252d71514755177551c7452074523735287252f7153472500000000000000000000000000000000000000000000000000
+010c1600000001072513725187251c7251f725247252b70512725157251a7251e72521725267252d70514725177251c7252072523725287252f72534705000001ca051ca051ca051ca051ca051ca051ca051ca05
 010e00002042524325293252c4251d3252032524425293252c3251d4252032524325294252c3251d3252042524325293252c4251d3252032524412293252c3251d4252032524325294252c3251d3252042524325
 010e00000c0430544505435054450543505445054350544501435014450143501445014350144501435014450c0430344503435034450343503445034350344500435004450043500445004350c0430043500445
 010e0000184251d3252032524425356152c325184251d32520325184251d3252c325356151d32520325184251d32520325184251d32535615244251d32520325184251d3252c3252442535615203251842529325
