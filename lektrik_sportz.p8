@@ -1097,7 +1097,6 @@ function shake()
 							downs+=1
 							_update=gs_update.tackled
 							_draw=gs_draw.tackled
-						
 						end	
 					else -- Trig facts: sin(a+b)=sin(a)cos(b)+cos(a)sin(b) cos(a+b)=cos(a)cos(b)-sin(a)sin(b)
 						if (base_a==round) then
