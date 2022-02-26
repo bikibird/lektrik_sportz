@@ -77,13 +77,29 @@ palettes=
 	{[0]=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}
 }	
 months={"january","february","march","april","may","june","july","august","september","october","november","december"}
+dance_moves=
+{ [0]=
+	66,68,64,70, 66,66,66,66, 128,130,128,130 ,128,130,128,130,
+	66,68,64,64, 132,134,132,134, 132,134,132,134, 64,68,128,130
+}
+dance_dx=
+{ [0]=
+	0,0,0,0, 0,0,0,0, -1,-1,-1,-1, 1,1,1,1,
+	0,0,0,0, 1,1,1,1, -1,-1,-1,-1, 0,0,0,0
+}
+dance_dy=
+{ [0]=
+	-1,-1,-1,-1, 1,1,1,1, 0,0,0,0, 0,0,0,0,
+	0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0
+}
+
+dance_tick=0
+dance_frame=0
+dance_step=4
 gs_update=
 {
 	space=function()
-		if btnp(fire2) then
-			_update=gs_update.dire
-			_draw=gs_draw.dire
-		end
+		
 		spaceman.tick=(spaceman.tick+1)%spaceman.step
 		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
 		spaceman.y+=spaceman.dy
@@ -91,7 +107,10 @@ gs_update=
 		spaceman.x+=spaceman.dx
 		if (spaceman.x>48 or spaceman.x<41) spaceman.dx=-spaceman.dx
 		update_stars()
-
+		if btnp(fire2) then
+			_update=gs_update.dire
+			_draw=gs_draw.dire
+		end
 	end,
 	dire=function()
 		if btnp(fire2) and ray_gun.y>49 then
@@ -231,19 +250,13 @@ gs_update=
 		if (ray_gun_ready) then
 			if (ray_gun.y>60 or (ray_gun.y<52)) ray_gun.dy=-ray_gun.dy
 		end
-		
 		ray_gun.x+=ray_gun.dx
 		if (ray_gun.x>98 or ray_gun.x<94) ray_gun.dx=-ray_gun.dx
 		update_stars()
+		
 	end,
 	shrink=function()
-		if btnp(fire2) and dropped then
-			form_scrimmage()
-			--panner=cocreate(pan)
-			_update=gs_update.pawn
-			_draw=gs_draw.pawn
-
-		end
+		
 		spaceman.tick=(spaceman.tick+1)%spaceman.step
 		if (spaceman.tick==1) spaceman.frame=(spaceman.frame+1)%2
 		spaceman.y+=spaceman.dy
@@ -255,6 +268,13 @@ gs_update=
 		ray_gun.x+=ray_gun.dx
 		if (ray_gun.x>98 or ray_gun.x<94) ray_gun.dx=-ray_gun.dx
 		update_stars()
+		if btnp(fire2) and dropped then
+			form_scrimmage()
+			--panner=cocreate(pan)
+			_update=gs_update.pawn
+			_draw=gs_draw.pawn
+
+		end
 	end,
 	pawn=function()
 	--	coresume(panner)
@@ -465,21 +485,21 @@ gs_update=
 	end,
 	play=function()
 		if (btnp(fire2)) then
-			 slo_mo= not slo_mo
+			 --slo_mo= not slo_mo
 		elseif btnp(left) then
-			team[qb].dy=-2
+			team[qb].dy=-1
 			dx=0
 			arrow_message=false
 		elseif btnp(right) then
-			team[qb].dy=2
+			team[qb].dy=1
 			dx=0
 			arrow_message=false
 		elseif btnp(up) then
-			team[qb].dx=2
+			team[qb].dx=1
 			dy=0
 			arrow_message=false
 		elseif btnp(down) then
-			team[qb].dx=-2
+			team[qb].dx=-1
 			dy=0
 			arrow_message=false	
 		end
@@ -661,6 +681,21 @@ gs_update=
 	end,
 	stats=function()
 		coresume(drop_ray_gun)
+		music_num=stat(46)
+		if music_num > -1 then
+			note_num=stat(50)
+			if resync and note_num==0 then
+				dance_tick=0
+				dance_frame=0
+			elseif note_num> 0 then
+				resync=true	
+			end
+		
+			dance_tick=(dance_tick+1)%dance_step
+			if (dance_tick==1) dance_frame=(dance_frame+1)%32
+			dance_x+=dance_dx[dance_frame]
+			team[qb].y+=dance_dy[dance_frame]
+		end	
 		if btnp(fire2) then
 			reload()
 			_init()
@@ -825,7 +860,7 @@ gs_draw=
 	play=function()
 		draw_players()
 		--draw_bearing(117,10,team[qb].dx,team[qb].dy,true)
-		if (slo_mo) print("\#6\f0 slo-mo ", 1,1)
+		--if (slo_mo) print("\#6\f0 slo-mo ", 1,1)
 		--print("\#6\f0 "..team[qb].x, 1,10)
 		--print("\#6\f0 "..team[qb].y, 1,20)
 		if (arrow_message)print("\#6\f0       ⬆️⬇️⬅️➡️ to exert will      ", 1,122)	
@@ -917,19 +952,26 @@ gs_draw=
 		cls()
 		map(72,0)
 		pal(palettes[2],1)
-		spr(173,64,team[qb].y,2,2)
+		
 		palt(0,false) palt(12,true)
 		spr(robot.s,robot.x,robot.y,2,2)
 		palt()
 		spr(142,ray_gun.x,ray_gun.y,2,1)
 		pal()
-		color(7)
-		print("\^pTHE END?",32,90)
-		--print(ray_gun.y,48,100,8)
+		print("\^pTHE END?",32,96,7)
+		if stat(46)>0 then --dancing
+			pal(12,1) pal(15,3)
+			spr(dance_moves[dance_frame],dance_x,team[qb].y,2,2)
+			pal(12,12) pal(15,15)
+		else -- standing
+			spr(173,64,team[qb].y,2,2)
+		end
+		
 		print("\#6\f0 "..sys_date.."                " , 0,165)
 		print("\#6\f0 home safe after "..downs.." downs            ", 0,172)
 		print("\#6\f0                                ", 0,179)
-		print("\#6\f0                     replay ❎  ", 0,186)
+		print("\#6\f0                      replay ❎ ", 0,186)
+		--print("\#6\f8 "..dance_frame.." "..dance_tick.." "..dance_step.." "..dance_moves[dance_frame]..stat(46),1,186)
 	end,
 }
 function _init()
@@ -942,9 +984,10 @@ function _init()
 	mode=0
 	player=1  --for strategize
 	qb=1
-	menuitem(3,"3d",go3d)
-	menuitem(2,"2d",go2d)
-
+	--menuitem(3,"3d",go3d)
+	--menuitem(2,"2d",go2d)
+	ray_gun_ready=false
+	dropped=false
 	robot={s=160, x=32,y=122,dx=0,dy=0,tick=0,frame=0,step=5}
 	spaceman={x=46,y=46,dx=.25,dy=-.25,tick=0,frame=0,step=10}
 	ray_gun={x=96,y=-8,dx=.5,dy=.5}
@@ -956,6 +999,7 @@ function _init()
 	will=up
 	nudge_y=sin(.02)
 	nudge_x=cos(.02)
+	dance_x=64
 	slo_mo=false
 	frame=0
 	downs=0
@@ -1052,7 +1096,7 @@ function form_scrimmage(players)
 		dx=-rnd(.5)
 		dy=rnd(1)-.5
 		base=rnd({1,2,3})
-		target=rnd({2,3,4,5,6,7})
+		target=rnd({2,3,4,5,6})
 		a=team[target].x-x
 		b=team[target].y-y
 		c=sqrt(a*a+b*b)
@@ -1065,6 +1109,8 @@ function form_scrimmage(players)
 	team[11].name="shammo"
 	team[12].name="teona"
 	team[rnd({7,8,9,10,11,12})].sacker=true
+	team[rnd({7,8,9,10,11,12})].sacker=true
+	team[rnd({7,8,9,10,11,12})].sacker=true
 	qb=1
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
@@ -1074,10 +1120,10 @@ function shake()
 	local base_a,base_b,dx,dy
 	for a=1, #team do
 		base_a=team[a].base
-			if team[a].sacker then
+			if team[a].sacker then  -- sacker is slightly faster than qb because allowed diagonal moves.
 				delta_x=team[a].x-team[qb].x
 				delta_y=team[a].x-team[qb].y
-				if delta_x<0 then
+				if delta_x<0 then  
 					team[a].dx=1
 				else
 					team[a].dx=-1
@@ -1099,10 +1145,9 @@ function shake()
 				--hit
 				if (a!=b) then  --if not self
 					if (a==qb and team[b].s==96) then --tackled
-						
 						sfx(2)
 						tackled_by=team[b].name
-						yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4 --10 yards= 24 pixels
+						yardage_gained=(team[qb].x-(scrimmage_line))/2.4 --10 yards= 24 pixels
 						downs+=1
 						if team[qb].x< 24 then
 							scrimmage_line=24
@@ -1146,7 +1191,7 @@ function shake()
 			if a==qb and (team[a].y<-14 or team[a].y>125 or team[a].x <-14) then --out_of_bounds
 
 				sfx(2)
-				yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4
+				yardage_gained=(team[qb].x-(scrimmage_line))/2.4
 				if team[qb].x< 24 then
 					scrimmage_line=24
 					team[qb].x=24
@@ -1781,12 +1826,12 @@ __sfx__
 010f00000c03300000300152401524615200150c013210150c003190151a01500000246153c70029515295150c0332e5052e5150c60524615225150000022515297172b71529014297152461535015295151d015
 010f000007135061350000009135071351f711000000510505135041350000007135051351c0151d0150313503135021350000005135031350a1050a135000000113502135031350413505135000000a13500000
 010f00000c033225152e5153a515246152b7070a145350150c003290153200529005246152501526015220150c0331e0251f0252700524615225051a0152250522015225152201522515246150a7110a0001d005
-011200000843508435122150043530615014351221502435034351221508435084353061512215054250341508435084350043501435306150243512215034351221512215084350843530615122151221524615
-011200000c033242352323524235202351d2352a5111b1350c0331b1351d1351b135201351d135171350c0330c0332423523235202351d2351b235202352a5110c03326125271162c11523135201351d13512215
-0112000001435014352a5110543530615064352a5110743508435115152a5110d43530615014352a511084150d4350d4352a5110543530615064352a5110743508435014352a5110143530615115152a52124615
-011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033115151c1351d1351c1351d135115151d1350c03323135115152213523116221352013522135
-0112000001435014352a5110543530615064352a5110743508435115152a5110d435306150143502435034350443513135141350743516135171350a435191351a1350d4351c1351d1351c1351d1352a5011e131
-011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033192351a235246151c2351d2350c0331f235202350c033222352323522235232352a50130011
+011e00000843508435122150043530615014351221502435034351221508435084353061512215054250341508435084350043501435306150243512215034351221512215084350843530615122151221524615
+011e00000c033242352323524235202351d2352a5111b1350c0331b1351d1351b135201351d135171350c0330c0332423523235202351d2351b235202352a5110c03326125271162c11523135201351d13512215
+011e000001435014352a5110543530615064352a5110743508435115152a5110d43530615014352a511084150d4350d4352a5110543530615064352a5110743508435014352a5110143530615115152a52124615
+011e00000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033115151c1351d1351c1351d135115151d1350c03323135115152213523116221352013522135
+011e000001435014352a5110543530615064352a5110743508435115152a5110d435306150143502435034350443513135141350743516135171350a435191351a1350d4351c1351d1351c1351d1352a5011e131
+011e00000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033192351a235246151c2351d2350c0331f235202350c033222352323522235232352a50130011
 000c07001075513755187451c7451f735247252b71512755157551a7451e74521735267252d71514755177551c7452074523735287252f7153472500000000000000000000000000000000000000000000000000
 000c0700000001072513725187251c7251f725247252b70512725157251a7251e72521725267252d70514725177251c7252072523725287252f72534705000001ca051ca051ca051ca051ca051ca051ca051ca05
 010e00002042524325293252c4251d3252032524425293252c3251d4252032524325294252c3251d3252042524325293252c4251d3252032524412293252c3251d4252032524325294252c3251d3252042524325
