@@ -467,19 +467,19 @@ gs_update=
 		if (btnp(fire2)) then
 			 slo_mo= not slo_mo
 		elseif btnp(left) then
-			team[qb].dy=-.015625
+			team[qb].dy=-2
 			dx=0
 			arrow_message=false
 		elseif btnp(right) then
-			team[qb].dy=.015625
+			team[qb].dy=2
 			dx=0
 			arrow_message=false
 		elseif btnp(up) then
-			team[qb].dx=.015625
+			team[qb].dx=2
 			dy=0
 			arrow_message=false
 		elseif btnp(down) then
-			team[qb].dx=-.015625
+			team[qb].dx=-2
 			dy=0
 			arrow_message=false	
 		end
@@ -525,11 +525,8 @@ gs_update=
 			camera(team[qb].x-51,0)	
 			scrimmage=false
 			mode=move
-			_update=gs_update.strategize
-			_draw=gs_draw.strategize
-			music(-1, 300)
-			music(1,500)
-		--	panner=cocreate(pan)
+			reload()
+			_init()
 		end
 	end,
 	embiggen=function()
@@ -581,6 +578,7 @@ gs_update=
 			camera(0,0)
 			team[qb].x,team[qb].y=32,0
 			win_offset=0
+			music(-1)
 			return
 		end
 		steady_cam(.8,team[qb].x, team[qb].y)
@@ -601,7 +599,7 @@ gs_update=
 			team[qb].y=16
 			_update=gs_update.win
 			_draw=gs_draw.win
-			music(14,1000)
+		
 		end
 		camera(0,0)
 		--steady_cam(.8,team[qb].x+12.8*team[qb].heart/2)
@@ -626,13 +624,25 @@ gs_update=
 						robot.s=160+i*2
 						yield()
 					end	
-					for i=5,1,-1 do
+					for i=5,3,-1 do
+						for j=1,2 do
+							yield()
+						end
+						robot.s=160+i*2
+						yield()
+					end
+					for i =1, 20 do
+						ray_gun.y= 121 + 10*easeoutbounce(i/20)
+						yield()
+					end
+					for i=2,0,-1 do
 						for j=1,2 do
 							yield()
 						end
 						robot.s=160+i*2
 						yield()
 					end	
+					music(14)
 				end
 			)
 			
@@ -829,8 +839,19 @@ gs_draw=
 	end,
 	out_of_bounds=function()
 		draw_players()
+		cam_x,cam_y=camera2d()
 		print("\#6\f0 down #"..downs.."  yardage gain: "..yardage_gained.."          ", 1,1)
-		print("\#6\f0 out of bounds!   strategize ❎  " , 1,122)
+		print("\#6\f0                                 ", 1,101)
+		print("\#6\f0TRYING TO ESCAPE THE HORDE,    ", 2,101)
+		print("\#6\f0                                 ", 1,108)
+		print("\#6\f0POOR NEAT-O FALLS OFF THE BOARD", 2,108)
+		palt(0,false)
+		pset(126,112,0)
+		palt()
+		print("\#6\f0                                  " , 1,115)
+		print("\#6\f0                                  ", 1,122)
+		print("\#6\f0out of bounds!        replay ❎ " , 2,122)
+		camera2d(cam_x,cam_y)
 	end,
 	embiggen=function()
 		cls()
@@ -1043,8 +1064,7 @@ function form_scrimmage(players)
 	team[10].name="eko"
 	team[11].name="shammo"
 	team[12].name="teona"
-
-	sacker=rnd({7,8,9,10,11,12})
+	team[rnd({7,8,9,10,11,12})].sacker=true
 	qb=1
 	steady_cam_x=team[qb].x
 	steady_cam_y=team[qb].y
@@ -1054,36 +1074,27 @@ function shake()
 	local base_a,base_b,dx,dy
 	for a=1, #team do
 		base_a=team[a].base
-		for b=1, #team do
-			base_b=team[b].base
-			if a==sacker then
-				dx=team[a].x-team[qb].x
-				dy=team[a].x-team[qb].y
-				if dx<0 then
+			if team[a].sacker then
+				delta_x=team[a].x-team[qb].x
+				delta_y=team[a].x-team[qb].y
+				if delta_x<0 then
 					team[a].dx=1
 				else
 					team[a].dx=-1
 				end	
-				if dy<0 then
+				if delta_y<0 then
 					team[a].dy=1
 				else
 					team[a].dy=-1
 				end	
 			end	
-			if a==qb then
-				distance =
-				{
-					x=team[a].x+rnd(1)-.5+team[a].dx-team[b].x,
-					y=team[a].y+rnd(1)-.5+team[a].dy-team[b].y
-				}
-			
-			else
-				distance =
-				{
-					x=team[a].x+rnd(1)-.5+team[a].dx/64-team[b].x,
-					y=team[a].y+rnd(1)-.5+team[a].dy/64-team[b].y
-				}
-			end	
+		for b=1, #team do
+			base_b=team[b].base
+			distance =
+			{
+				x=team[a].x+rnd(1)-.5+team[a].dx/64-team[b].x,
+				y=team[a].y+rnd(1)-.5+team[a].dy/64-team[b].y
+			}
 			if distance.x>=-3 and distance.x<=3 and distance.y>=-8 and distance.y<=8 then
 				--hit
 				if (a!=b) then  --if not self
@@ -1092,12 +1103,18 @@ function shake()
 						sfx(2)
 						tackled_by=team[b].name
 						yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4 --10 yards= 24 pixels
-						scrimmage_line=team[qb].x
+						downs+=1
+						if team[qb].x< 24 then
+							scrimmage_line=24
+							team[qb].x=24
+						else	
+							scrimmage_line=team[qb].x
+						end	
 						if scrimmage_line < 260 then
-							downs+=1
 							_update=gs_update.tackled
 							_draw=gs_draw.tackled
 						end	
+
 					else -- Trig facts: sin(a+b)=sin(a)cos(b)+cos(a)sin(b) cos(a+b)=cos(a)cos(b)-sin(a)sin(b)
 						if (base_a==round) then
 							if distance.y <0 then
@@ -1130,7 +1147,12 @@ function shake()
 
 				sfx(2)
 				yardage_gained=(team[qb].x-(scrimmage_line-24))/2.4
-				scrimmage_line=team[qb].x
+				if team[qb].x< 24 then
+					scrimmage_line=24
+					team[qb].x=24
+				else	
+					scrimmage_line=team[qb].x
+				end	
 				if scrimmage_line < 260 then
 					downs+=1
 					_update=gs_update.out_of_bounds
@@ -1765,8 +1787,8 @@ __sfx__
 011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033115151c1351d1351c1351d135115151d1350c03323135115152213523116221352013522135
 0112000001435014352a5110543530615064352a5110743508435115152a5110d435306150143502435034350443513135141350743516135171350a435191351a1350d4351c1351d1351c1351d1352a5011e131
 011200000c033115152823529235282352923511515292350c0332823529216282252923511515115150c0330c033192351a235246151c2351d2350c0331f235202350c033222352323522235232352a50130011
-000c16001075513755187451c7451f735247252b71512755157551a7451e74521735267252d71514755177551c7452074523735287252f7153472500000000000000000000000000000000000000000000000000
-010c1600000001072513725187251c7251f725247252b70512725157251a7251e72521725267252d70514725177251c7252072523725287252f72534705000001ca051ca051ca051ca051ca051ca051ca051ca05
+000c07001075513755187451c7451f735247252b71512755157551a7451e74521735267252d71514755177551c7452074523735287252f7153472500000000000000000000000000000000000000000000000000
+000c0700000001072513725187251c7251f725247252b70512725157251a7251e72521725267252d70514725177251c7252072523725287252f72534705000001ca051ca051ca051ca051ca051ca051ca051ca05
 010e00002042524325293252c4251d3252032524425293252c3251d4252032524325294252c3251d3252042524325293252c4251d3252032524412293252c3251d4252032524325294252c3251d3252042524325
 010e00000c0430544505435054450543505445054350544501435014450143501445014350144501435014450c0430344503435034450343503445034350344500435004450043500445004350c0430043500445
 010e0000184251d3252032524425356152c325184251d32520325184251d3252c325356151d32520325184251d32520325184251d32535615244251d32520325184251d3252c3252442535615203251842529325
