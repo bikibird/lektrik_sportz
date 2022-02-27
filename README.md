@@ -10,4 +10,8 @@ Run from one end of the field to the other while avoiding your opponents. You sh
 
 Your teammates can help block the opponents and you can set their overall direction and confrontation style in the strategy session.
 
-If you are using a keyboard to play, use the Z key to advance to the next screen/teammate and  the X key to switch modes in the strategy session.  Arrow keys select options, set direction, and move teammates.
+If you are using a keyboard to play, use the X key to advance to the next screen/teammate and  the Z key to switch modes in the strategy session.  Arrow keys select options, set direction, and move teammates.
+
+###Credits
+
+All assets used in the making of this game are courtesy of Toy Box Jam 3. I borrowed @mot's Instant 3D Plus! library and hacked it a bit to get an additional camera angle. All other code, the poetry, and the idea for this adventure are my own.
