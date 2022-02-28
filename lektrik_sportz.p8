@@ -816,11 +816,11 @@ gs_draw=
 			print("\#6\f0 ❎"..neat.."  🅾️mode  ⬅️➡️⬆️⬇️move ",0,1, black)
 		elseif mode==base then
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️base ",0,1, black)
-			print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
+		--	print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
 			--print("\#6\f0 "..cam_x, 1,122)
 		elseif mode==veer then
 			print("\#6\f0 ❎"..neat.."  🅾️mode      ⬆️⬇️veer  ",0,1, black)
-			print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
+		--	print("\#6\f0 ⬅️ pan ➡️ ", 42,122)
 		end
 		camera(cam_x,camy)
 	end,
@@ -1119,6 +1119,9 @@ end
 function shake()
 	local base_a,base_b,dx,dy
 	for a=1, #team do
+		team[a].collision=false
+	end
+	for a=1, #team do
 		base_a=team[a].base
 			if team[a].sacker then  -- sacker is slightly faster than qb because allowed diagonal moves.
 				delta_x=team[a].x-team[qb].x
@@ -1159,8 +1162,10 @@ function shake()
 							_update=gs_update.tackled
 							_draw=gs_draw.tackled
 						end	
-
 					else -- Trig facts: sin(a+b)=sin(a)cos(b)+cos(a)sin(b) cos(a+b)=cos(a)cos(b)-sin(a)sin(b)
+						team[b].collision=true
+						team[a].collision=true
+						
 						if (base_a==round) then
 							if distance.y <0 then
 								team[a].dx=team[a].dx*nudge_x+team[a].dy*nudge_y
@@ -1168,7 +1173,12 @@ function shake()
 							else
 								team[a].dx=team[a].dx*nudge_x-team[a].dy*nudge_y
 								team[a].dy=team[a].dy*nudge_x+team[a].dx*nudge_y
-							end
+							end -- Apply 25% of a's momentum to b
+							team[b].dx=team[b].dx*team[a].dx*.25+team[b].dy*team[a].dy*.25
+							team[b].dy=team[b].dy*team[a].dx*.25-team[b].dx*team[a].dy*.25
+							team[a].dx=team[a].dx*team[b].dx*.25-team[a].dy*team[b].dy*.25
+							team[a].dy=team[a].dy*team[b].dx*.25+team[a].dx*team[b].dy*.25
+							-- subtract 25% of b's momentum from a
 							--change angle slightly dx, dy only no actual movement this turn.
 						elseif (base_a==wedge)then	--pushes opponent asside
 							if distance.y <0 then
@@ -1178,16 +1188,34 @@ function shake()
 								team[b].dx=team[b].dx*nudge_x-team[b].dy*nudge_y
 								team[b].dy=team[b].dy*nudge_x+team[b].dx*nudge_y
 							end
-						end  --block does not move
+							team[b].dx=team[b].dx*team[a].dx*.25+team[b].dy*team[a].dy*.25
+							team[b].dy=team[b].dy*team[a].dx*.25-team[b].dx*team[a].dy*.25
+							team[a].dx=team[a].dx*team[b].dx*.25-team[a].dy*team[b].dy*.25
+							team[a].dy=team[a].dy*team[b].dx*.25+team[a].dx*team[b].dy*.25
+						else	
+							team[b].dx=team[b].dx*team[a].dx*.75+team[b].dy*team[a].dy*.75
+							team[b].dy=team[b].dy*team[a].dx*.75-team[b].dx*team[a].dy*.75
+							team[a].dx=team[a].dx*team[b].dx*.75-team[a].dy*team[b].dy*.75
+							team[a].dy=team[a].dy*team[b].dx*.75+team[a].dx*team[b].dy*.75
+								 --block does not move	
+								
+						end 
+
 					end
 				else  --path is clear
-					team[a].x=distance.x+team[b].x
-					team[a].y=distance.y+team[b].y
+			--		team[a].x=distance.x+team[b].x
+			--		team[a].y=distance.y+team[b].y
 				end
 			else
-				team[a].x=distance.x+team[b].x
-				team[a].y=distance.y+team[b].y
-			end		
+			--	team[a].x=distance.x+team[b].x
+			--	team[a].y=distance.y+team[b].y
+			end	
+			for a=1, #team do
+				if not team[a].collision then
+					team[a].x+=(rnd(1)-.5+team[a].dx/64)/4
+					team[a].y+=(rnd(1)-.5+team[a].dy/64)/4
+				end
+			end	
 			if a==qb and (team[a].y<-14 or team[a].y>125 or team[a].x <-14) then --out_of_bounds
 
 				sfx(2)
